@@ -10,8 +10,8 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
-#top{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:var(--panel);padding:4px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.15);z-index:5}
-#top button{border:0;background:transparent;padding:8px 14px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer}
+#top{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:2px;max-width:calc(100% - 12px);overflow-x:auto;scrollbar-width:none;background:var(--panel);padding:4px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.15);z-index:5}
+#top button{white-space:nowrap;flex:0 0 auto;border:0;background:transparent;padding:8px 14px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer}
 #top button.on{background:var(--acc);color:#fff}
 .panel{position:fixed;right:10px;bottom:10px;background:var(--panel);border-radius:12px;padding:8px;box-shadow:0 2px 12px rgba(0,0,0,.15);display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 20px);justify-content:flex-end;z-index:4}
 .panel button,.panel select{border:1px solid #d6d9dc;background:#fff;border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer;color:var(--ink)}
@@ -39,8 +39,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
 .gwrap{max-width:1200px;margin:0 auto}.gwrap h2{margin:0 0 4px;font-size:18px}.gsub{color:#9aa4ad;font-size:13px;margin:0 0 14px}
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
 #grid figure{margin:0;background:#1b2024;border-radius:10px;overflow:hidden;cursor:zoom-in}#grid img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}#grid figcaption{padding:8px 10px;font-size:13px;color:#cfd5da}
+.hs{position:fixed;transform:translate(-50%,-50%);z-index:4;border:2px solid #fff;background:rgba(20,24,28,.55);color:#fff;border-radius:20px;padding:6px 12px 6px 10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.hs::before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;background:#fff;margin-right:7px;vertical-align:-1px;box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+#gempty{color:#9aa4ad;font-size:14px;padding:30px 0;display:none}
 #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--muted);z-index:20;background:var(--bg)}
-@media (max-width:600px){#help{display:none}#top button{padding:7px 10px;font-size:13px}}
+@media (max-width:600px){#help{display:none}#top{top:6px}#top button{padding:7px 8px;font-size:12px}#room,#help{top:54px}}
+#top::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
@@ -49,7 +53,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
 <div id="top">
   <button data-m="plan">Planta</button>
   <button data-m="orbit">Maquete 3D</button>
-  <button data-m="walk">Passeio</button>
+  <button data-m="walk">Passeio 3D</button>
+  <button data-m="tour">Tour 360°</button>
   <button data-m="renders">Renders</button>
 </div>
 <div id="room"></div>
@@ -74,7 +79,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
   <div id="info"></div>
 </div></div>
 
-<div id="gallery"><div class="gwrap"><h2>Renders realistas</h2><p class="gsub">Imagens geradas com renderização por traçado de raios (luz solar, reflexos e sombras físicas).</p><div id="grid"></div></div></div>
+<div id="hot"></div>
+<div class="panel" id="pTour"><select id="tsel"></select><button class="bShot">📷 Imagem</button></div>
+<div id="gallery"><div class="gwrap"><h2>Renders realistas</h2><p class="gsub">Imagens geradas com renderização por traçado de raios (luz solar, reflexos e sombras físicas).</p><div id="grid"></div><p id="gempty">Os renders ainda estão sendo gerados. Volte em alguns minutos.</p></div></div>
 
 <div id="shot"><img alt="Imagem gerada"><p>Celular: toque e segure na imagem para salvar · PC: botão direito › Salvar imagem</p><button id="shotClose">Fechar</button></div>
 
@@ -151,6 +158,19 @@ const SPOTS = [
   ['Área gourmet', 5.6, 25.0, 9.5, 27.5],
   ['Quintal / horta', 6.0, 31.5, 6, 39],
 ];
+
+// 360 tour: ray-traced equirectangular panoramas; links = neighbours reachable by hotspot
+const PANOS = {
+  rua:      {n:'Frente da casa', x:7.2, z:-1.5, links:['sala']},
+  sala:     {n:'Sala de estar / jantar', x:3.9, z:8.9, links:['rua','cozinha','corredor']},
+  cozinha:  {n:'Cozinha', x:8.0, z:12.6, links:['sala','corredor','gourmet']},
+  corredor: {n:'Corredor dos quartos', x:6.0, z:16.6, links:['sala','cozinha','suite2','master']},
+  suite2:   {n:'Suíte 2', x:4.6, z:16.2, links:['corredor']},
+  master:   {n:'Suíte master', x:3.6, z:22.0, links:['corredor','quintal']},
+  gourmet:  {n:'Área gourmet', x:5.4, z:25.3, links:['quintal','cozinha']},
+  quintal:  {n:'Quintal e horta', x:3.5, z:31.8, links:['gourmet','master']},
+};
+const PANO_YAW = -Math.PI/2;  // aligns the panorama image with world axes
 
 // Photorealistic renders shown in the gallery tab
 const RENDERS = [
@@ -677,6 +697,15 @@ canvas.addEventListener('pointermove', e=>{
       const s = p.type === 'mouse' ? 0.0032 : 0.0055;
       walk.yaw += dx*s; walk.pitch = clamp(walk.pitch + dy*s, -1.2, 1.2);
     }
+  } else if(mode === 'tour'){
+    if(ptrs.size === 1){
+      const k = tourCam.fov / innerHeight * Math.PI / 180;
+      tour.lon += dx*k; tour.lat = clamp(tour.lat + dy*k, -1.45, 1.45);
+    } else if(ptrs.size === 2){
+      const [a, b] = [...ptrs.values()], d = Math.hypot(a.x-b.x, a.y-b.y);
+      if(pinch){ tourCam.fov = clamp(tourCam.fov*pinch.d/d, 35, 95); tourCam.updateProjectionMatrix(); }
+      pinch = {d};
+    }
   } else if(mode === 'orbit'){
     if(ptrs.size === 1){
       if(p.btn === 2 || e.shiftKey) pan(dx, dy);
@@ -695,7 +724,7 @@ function endPtr(e){
 }
 canvas.addEventListener('pointerup', endPtr);
 canvas.addEventListener('pointercancel', endPtr);
-canvas.addEventListener('wheel', e=>{ e.preventDefault(); if(mode==='orbit'){ orbitGoal = null; orbit.r = clamp(orbit.r*Math.exp(e.deltaY*0.0012), 4, 120); } }, {passive:false});
+canvas.addEventListener('wheel', e=>{ e.preventDefault(); if(mode==='tour'){ tourCam.fov = clamp(tourCam.fov*Math.exp(e.deltaY*0.001), 35, 95); tourCam.updateProjectionMatrix(); } if(mode==='orbit'){ orbitGoal = null; orbit.r = clamp(orbit.r*Math.exp(e.deltaY*0.0012), 4, 120); } }, {passive:false});
 function knob(x, y){ const k = document.getElementById('knob'); k.style.transform = `translate(${x}px,${y}px)`; }
 addEventListener('keydown', e=>{ keys[e.code] = true; if(mode==='walk' && e.code.startsWith('Arrow')) e.preventDefault(); });
 addEventListener('keyup', e=>{ keys[e.code] = false; });
@@ -706,6 +735,7 @@ let roofOn = false;
 const help = document.getElementById('help'), roomEl = document.getElementById('room');
 const HELP = {
   orbit: '<b>Maquete</b><br>Arrastar: girar · Roda/pinça: zoom<br>Botão direito / 2 dedos: mover',
+  tour: '<b>Tour 360°</b><br>Arraste para olhar · pinça/roda: zoom<br>Toque nos marcadores para mudar de ambiente',
   walk: '<b>Passeio</b><br>PC: W A S D anda · arraste o mouse para olhar · Shift corre<br>Celular: lado esquerdo = joystick · lado direito = olhar',
 };
 function setMode(m){
@@ -715,11 +745,15 @@ function setMode(m){
   document.getElementById('gallery').style.display = m === 'renders' ? 'block' : 'none';
   document.getElementById('pOrbit').style.display = m === 'orbit' ? 'flex' : 'none';
   document.getElementById('pWalk').style.display = m === 'walk' ? 'flex' : 'none';
-  help.style.display = (m === 'plan' || m === 'renders') ? 'none' : ''; help.innerHTML = HELP[m] || '';
-  roomEl.style.display = m === 'walk' ? 'block' : 'none';
+  document.getElementById('pTour').style.display = m === 'tour' ? 'flex' : 'none';
+  document.getElementById('hot').style.display = m === 'tour' ? 'block' : 'none';
+  if(m === 'tour' && !tour.cur) goPano('rua');
+  help.style.display = (m === 'plan' || m === 'renders') ? 'none' : ''; if(m === 'tour') help.innerHTML = HELP.tour; help.innerHTML = HELP[m] || '';
+  roomEl.style.display = (m === 'walk' || m === 'tour') ? 'block' : 'none';
   roof.visible = m === 'walk' ? true : roofOn;
   camera.fov = m === 'walk' ? 72 : 50; camera.updateProjectionMatrix();
-  try{ history.replaceState(null, '', '#' + ({plan:'planta', orbit:'maquete', walk:'passeio', renders:'renders'})[m]); }catch(_){}
+  if(m === 'tour'){ tourCam.fov = 75; tourCam.updateProjectionMatrix(); }
+  try{ history.replaceState(null, '', '#' + ({plan:'planta', orbit:'maquete', walk:'passeio', tour:'tour360', renders:'renders'})[m]); }catch(_){}
 }
 document.querySelectorAll('#top button').forEach(b=>b.onclick = ()=>setMode(b.dataset.m));
 document.querySelectorAll('#pOrbit [data-v]').forEach(b=>b.onclick = ()=>{ orbitGoal = Object.assign({}, VIEWS[b.dataset.v]); });
@@ -731,7 +765,7 @@ sel.onchange = ()=>{
   walk.x = s[1]; walk.z = s[2]; walk.yaw = Math.atan2(-(s[3]-s[1]), -(s[4]-s[2])); walk.pitch = -0.05; sel.value = '';
 };
 document.querySelectorAll('.bShot').forEach(b=>b.onclick = ()=>{
-  renderer.render(scene, camera);
+  if(mode === 'tour') renderer.render(tourScene, tourCam); else renderer.render(scene, camera);
   const img = document.querySelector('#shot img'); img.src = renderer.domElement.toDataURL('image/jpeg', 0.92);
   document.getElementById('shot').style.display = 'flex';
 });
@@ -830,15 +864,69 @@ function buildGallery(){
   grid.innerHTML = RENDERS.map(([src, cap])=>`<figure><img loading="lazy" src="${src}" alt="${cap}"><figcaption>${cap}</figcaption></figure>`).join('');
   grid.querySelectorAll('figure').forEach(f=>{
     const img = f.querySelector('img');
-    img.onerror = ()=>f.remove();
+    img.onerror = ()=>{ f.remove(); if(!grid.children.length) document.getElementById('gempty').style.display = 'block'; };
     f.onclick = ()=>{ document.querySelector('#shot img').src = img.src; document.getElementById('shot').style.display = 'flex'; };
   });
 }
 
+// ================= 360 tour =================
+const tourScene = new THREE.Scene();
+const tourCam = new THREE.PerspectiveCamera(75, 1, 0.1, 200);
+const tourMat = new THREE.MeshBasicMaterial({toneMapped:false});
+const tourSphere = new THREE.Mesh(new THREE.SphereGeometry(50, 96, 48), tourMat);
+tourSphere.geometry.scale(-1, 1, 1);
+tourSphere.rotation.y = PANO_YAW;
+tourScene.add(tourSphere);
+const tour = {cur:null, lon:0, lat:0, cache:{}, hs:[]};
+const loader = new THREE.TextureLoader();
+function panoTex(id, cb, onErr){
+  if(tour.cache[id]) return cb(tour.cache[id]);
+  loader.load(`renders/pano/${id}.jpg`, t=>{ t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; tour.cache[id] = t; cb(t); }, undefined, onErr);
+}
+// Yaw that looks from pano a toward point (x,z); camera forward = (-sin yaw, -cos yaw)
+const yawTo = (a, x, z) => Math.atan2(-(x-a.x), -(z-a.z));
+function goPano(id){
+  const p = PANOS[id], prev = tour.cur && PANOS[tour.cur];
+  panoTex(id, t=>{
+    tourMat.map = t; tourMat.needsUpdate = true;
+    if(prev) tour.lon = yawTo(prev, p.x, p.z);          // keep walking direction
+    else tour.lon = yawTo(p, PANOS[p.links[0]].x, PANOS[p.links[0]].z);
+    tour.lat = 0; tour.cur = id;
+    roomEl.style.display = 'block'; roomEl.textContent = p.n;
+    tsel.value = id; buildHotspots();
+  }, ()=>{ roomEl.style.display = 'block'; roomEl.textContent = 'Panorama indisponível no momento'; });
+  // Prefetch neighbours
+  p.links.forEach(l=>panoTex(l, ()=>{}));
+}
+function buildHotspots(){
+  const box = document.getElementById('hot'); box.innerHTML = ''; tour.hs = [];
+  const a = PANOS[tour.cur];
+  a.links.forEach(id=>{
+    const b = PANOS[id], d = Math.hypot(b.x-a.x, b.z-a.z);
+    const dir = new THREE.Vector3(b.x-a.x, -Math.min(1.0, 1.55/Math.max(d,1)), b.z-a.z).normalize();
+    const el = document.createElement('button'); el.className = 'hs'; el.textContent = b.n;
+    el.onclick = ()=>goPano(id); box.appendChild(el); tour.hs.push({el, dir});
+  });
+}
+function updateTour(){
+  tourCam.rotation.set(tour.lat, tour.lon, 0, 'YXZ');
+  tourCam.updateMatrixWorld();
+  const v = new THREE.Vector3();
+  tour.hs.forEach(h=>{
+    v.copy(h.dir).multiplyScalar(10).project(tourCam);
+    const vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1;
+    h.el.style.display = vis ? 'block' : 'none';
+    if(vis){ h.el.style.left = ((v.x+1)/2*innerWidth)+'px'; h.el.style.top = ((1-v.y)/2*innerHeight)+'px'; }
+  });
+}
+const tsel = document.getElementById('tsel');
+tsel.innerHTML = Object.entries(PANOS).map(([id,p])=>`<option value="${id}">${p.n}</option>`).join('');
+tsel.onchange = ()=>{ tour.cur = null; goPano(tsel.value); };
+
 // ================= Loop =================
 function resize(){
   const w = innerWidth, h = innerHeight;
-  renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix(); tourCam.aspect = w/h; tourCam.updateProjectionMatrix();
 }
 addEventListener('resize', resize);
 let last = performance.now();
@@ -851,6 +939,8 @@ function tick(now){
       if(done) orbitGoal = null;
     }
     applyOrbit(); renderer.render(scene, camera);
+  } else if(mode === 'tour'){
+    updateTour(); renderer.render(tourScene, tourCam);
   } else if(mode === 'walk'){
     updateWalk(dt); roomEl.textContent = whereAmI(walk.x, walk.z); renderer.render(scene, camera);
   }
@@ -878,7 +968,7 @@ buildRoof(); buildFurniture(); buildPlan(); buildGallery();
 scene.traverse(o=>{ if(o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.55; });
 window.HOUSE = {scene, world, roof};
 resize();
-const start = ({planta:'plan', maquete:'orbit', passeio:'walk', renders:'renders'})[location.hash.slice(1)] || 'orbit';
+const start = ({planta:'plan', maquete:'orbit', passeio:'walk', tour360:'tour', renders:'renders'})[location.hash.slice(1)] || 'orbit';
 setMode(start);
 document.getElementById('loading').remove();
 requestAnimationFrame(tick);
