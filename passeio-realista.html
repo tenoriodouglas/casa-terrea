@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Casa Térrea — Passeio realista (Gaussian Splatting)</title>
+<style>
+:root{--panel:rgba(255,255,255,.92);--ink:#1d2329;--muted:#66717c;--acc:#2f6f5e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#101315;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#bar{position:fixed;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;background:var(--panel);padding:6px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.25);z-index:5;max-width:calc(100% - 12px)}
+#bar a,#bar select,#bar button{border:1px solid #d6d9dc;background:#fff;border-radius:8px;padding:7px 10px;font-size:13px;color:var(--ink);text-decoration:none;cursor:pointer}
+#status{position:fixed;left:50%;top:60px;transform:translateX(-50%);background:rgba(29,35,41,.8);color:#fff;padding:5px 12px;border-radius:20px;font-size:13px;z-index:5;pointer-events:none}
+#help{position:fixed;left:10px;bottom:10px;background:var(--panel);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--muted);max-width:280px;z-index:4;line-height:1.4}
+#joy{position:fixed;width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(0,0,0,.15);display:none;pointer-events:none;z-index:6}
+#knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.85)}
+#empty{position:fixed;inset:0;overflow:auto;background:#f7f6f3;padding:70px 16px 30px;display:none;z-index:3}
+#empty .card{max-width:720px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 1px 8px rgba(0,0,0,.08);padding:18px 20px;font-size:14.5px;line-height:1.55}
+#empty h2{margin:0 0 8px;font-size:19px}#empty ol{padding-left:20px}#empty code{background:#f0f2f3;padding:1px 5px;border-radius:4px;font-size:13px}
+#empty .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:10px 0}
+#empty .thumbs a{display:block;font-size:12px;color:var(--muted);text-decoration:none}#empty .thumbs img{width:100%;border-radius:6px;display:block;aspect-ratio:2/1;object-fit:cover}
+@media (max-width:600px){#help{display:none}}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/build/three.module.min.js",
+  "three/addons/": "./vendor/three/examples/jsm/",
+  "@sparkjsdev/spark": "./vendor/spark/spark.module.min.js"
+} }
+</script>
+</head>
+<body>
+<div id="bar">
+  <a href="./">← Voltar</a>
+  <select id="room"></select>
+  <button id="reset">Recentralizar</button>
+</div>
+<div id="status">Carregando…</div>
+<div id="help"><b>Passeio realista</b><br>PC: W A S D anda · arraste o mouse para olhar · Q/E sobe/desce<br>Celular: lado esquerdo = joystick · lado direito = olhar</div>
+<div id="joy"><div id="knob"></div></div>
+<div id="empty"><div class="card">
+  <h2>Passeio realista: como gerar os ambientes 3D</h2>
+  <p>Esta página exibe ambientes em <b>Gaussian Splatting</b> (3D fotorrealista navegável no navegador e no celular). Os arquivos são gerados pelo <b>World Labs Marble</b> a partir dos panoramas 360° renderizados da casa:</p>
+  <ol>
+    <li>Baixe o panorama do ambiente (lista abaixo).</li>
+    <li>Em <code>marble.worldlabs.ai</code>, crie um mundo com entrada <b>Panorama</b> e envie a imagem.</li>
+    <li>Exporte o resultado em <b>.spz</b>.</li>
+    <li>Salve no repositório como <code>splats/&lt;ambiente&gt;.spz</code> (ex.: <code>splats/sala.spz</code>) e faça o commit. A página detecta o arquivo automaticamente.</li>
+  </ol>
+  <div class="thumbs" id="thumbs"></div>
+  <p style="color:#66717c;font-size:13px">Até que existam arquivos .spz, use o <a href="./#tour360">Tour 360°</a>, que já é renderizado de forma fotorrealista.</p>
+</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { SparkRenderer, SplatMesh } from '@sparkjsdev/spark';
+
+// One splat world per room, generated from the matching 360 panorama
+const ROOMS = {
+  rua:'Frente da casa', sala:'Sala de estar / jantar', cozinha:'Cozinha', corredor:'Corredor dos quartos', lavanderia:'Lavanderia',
+  banho:'Banheiro social', quarto2:'Quarto 2', quarto3:'Quarto 3', master:'Suíte master', escritorio:'Escritório',
+  gourmet:'Área gourmet', quintal:'Quintal e pergolado', horta:'Horta',
+};
+const statusEl = document.getElementById('status'), sel = document.getElementById('room');
+
+// Detect which splat files exist (.spz preferred, .ply accepted)
+async function exists(url){ try{ const r = await fetch(url, {method:'HEAD', cache:'no-store'}); return r.ok; }catch(_){ return false; } }
+const available = [];
+for(const id of Object.keys(ROOMS)){
+  for(const ext of ['spz', 'ply']){ const url = `splats/${id}.${ext}`; if(await exists(url)){ available.push({id, url}); break; } }
+}
+if(!available.length){
+  document.getElementById('empty').style.display = 'block';
+  document.getElementById('thumbs').innerHTML = Object.entries(ROOMS).map(([id,n])=>`<a href="renders/pano/${id}.jpg" target="_blank"><img src="renders/pano/${id}.jpg" alt="${n}" loading="lazy">${n}</a>`).join('');
+  statusEl.style.display = 'none'; document.getElementById('help').style.display = 'none';
+  sel.style.display = 'none'; document.getElementById('reset').style.display = 'none';
+} else start();
+
+function start(){
+  sel.innerHTML = available.map(a=>`<option value="${a.id}">${ROOMS[a.id]}</option>`).join('');
+  const renderer = new THREE.WebGLRenderer({antialias:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+  document.body.prepend(renderer.domElement);
+  const canvas = renderer.domElement;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(70, 1, 0.01, 500);
+  scene.add(new SparkRenderer({renderer}));
+  let splat = null;
+  const view = {yaw:0, pitch:0, pos:new THREE.Vector3()};
+
+  function load(id){
+    const a = available.find(x=>x.id === id); if(!a) return;
+    if(splat){ scene.remove(splat); splat.dispose && splat.dispose(); }
+    statusEl.style.display = 'block'; statusEl.textContent = 'Carregando ' + ROOMS[id] + '…';
+    splat = new SplatMesh({url:a.url, onLoad:()=>{ statusEl.textContent = ROOMS[id]; }});
+    splat.quaternion.set(1, 0, 0, 0);   // OpenCV (y-down) → three.js (y-up)
+    scene.add(splat);
+    view.pos.set(0, 0, 0); view.yaw = 0; view.pitch = 0;   // world origin = panorama capture point
+    try{ history.replaceState(null, '', '#' + id); }catch(_){}
+  }
+  sel.onchange = ()=>load(sel.value);
+  document.getElementById('reset').onclick = ()=>{ view.pos.set(0,0,0); };
+
+  // ---------- Controls: keyboard, mouse/touch look, virtual joystick ----------
+  const keys = {}, ptrs = new Map(), joy = {id:null, ox:0, oy:0, vx:0, vy:0};
+  addEventListener('keydown', e=>{ keys[e.code] = true; });
+  addEventListener('keyup', e=>{ keys[e.code] = false; });
+  canvas.addEventListener('pointerdown', e=>{
+    canvas.setPointerCapture(e.pointerId);
+    const p = {x:e.clientX, y:e.clientY, type:e.pointerType, role:'look'};
+    if(e.pointerType !== 'mouse' && e.clientX < innerWidth*0.45 && joy.id === null){
+      p.role = 'joy'; joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY;
+      const el = document.getElementById('joy'); el.style.left = (e.clientX-60)+'px'; el.style.top = (e.clientY-60)+'px'; el.style.display = 'block';
+    }
+    ptrs.set(e.pointerId, p);
+  });
+  canvas.addEventListener('pointermove', e=>{
+    const p = ptrs.get(e.pointerId); if(!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if(p.role === 'joy'){
+      let vx = e.clientX - joy.ox, vy = e.clientY - joy.oy; const L = Math.hypot(vx, vy);
+      if(L > 50){ vx *= 50/L; vy *= 50/L; }
+      joy.vx = vx/50; joy.vy = vy/50; document.getElementById('knob').style.transform = `translate(${vx}px,${vy}px)`;
+    } else {
+      const s = p.type === 'mouse' ? 0.0032 : 0.0055;
+      view.yaw += dx*s; view.pitch = Math.max(-1.3, Math.min(1.3, view.pitch + dy*s));
+    }
+  });
+  const end = e=>{ ptrs.delete(e.pointerId); if(e.pointerId === joy.id){ joy.id = null; joy.vx = joy.vy = 0; document.getElementById('joy').style.display = 'none'; } };
+  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+
+  function resize(){ renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); }
+  addEventListener('resize', resize); resize();
+
+  let last = performance.now();
+  renderer.setAnimationLoop(now=>{
+    const dt = Math.min((now-last)/1000, 0.05); last = now;
+    let f = 0, st = 0, up = 0;
+    if(keys.KeyW || keys.ArrowUp) f += 1; if(keys.KeyS || keys.ArrowDown) f -= 1;
+    if(keys.KeyD || keys.ArrowRight) st += 1; if(keys.KeyA || keys.ArrowLeft) st -= 1;
+    if(keys.KeyE) up += 1; if(keys.KeyQ) up -= 1;
+    if(joy.id !== null){ f -= joy.vy; st += joy.vx; }
+    const sp = (keys.ShiftLeft ? 2.4 : 1.2) * dt;
+    view.pos.x += (-Math.sin(view.yaw)*f + Math.cos(view.yaw)*st) * sp;
+    view.pos.z += (-Math.cos(view.yaw)*f - Math.sin(view.yaw)*st) * sp;
+    view.pos.y += up * sp;
+    camera.position.copy(view.pos);
+    camera.rotation.set(view.pitch, view.yaw, 0, 'YXZ');
+    renderer.render(scene, camera);
+  });
+
+  const start = location.hash.slice(1);
+  load(available.some(a=>a.id === start) ? start : available[0].id);
+  sel.value = available.some(a=>a.id === start) ? start : available[0].id;
+}
+</script>
+</body>
+</html>
