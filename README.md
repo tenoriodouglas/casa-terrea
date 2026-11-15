@@ -17,12 +17,12 @@ Deep links: `#planta`, `#maquete`, `#passeio`, `#tour360`, `#renders`.
 ## Program
 - Living/dining, kitchen with island, entrance hall.
 - Powder room and winter garden between the living area and the bedroom wing.
-- Bedroom corridor (1.30 m) giving access to the laundry (with side door to the clothesline), shared bathroom, bedrooms 2 and 3, master suite and home office.
+- 3 bedrooms (1 master suite) + home office. Bedroom corridor (1.30 m) gives access to the laundry (side door to the clothesline), shared bathroom, bedrooms 2 and 3, master suite and office.
 - Master suite with walk-in closet and accessible bathroom.
-- Compact gourmet area: sink, wood-fired grill and pizza oven sharing the same chimney; pergola with outdoor table and herb planter.
+- Compact covered grill: sink, wood-fired grill and pizza oven sharing the same chimney (no dining area), herb planter beside it.
 - Lawn, fruit trees, compost bin and 5 raised vegetable beds (45 m²).
 - Accessibility (NBR 9050 basis): 0.90 m doors, 1.50 m turning circles in bathrooms, curbless showers.
-- Ceiling height 3.00 m, built area ≈ 202 m².
+- Wood floors throughout (wood-look porcelain in wet areas); lawn outside, including a grass driveway. Ceiling height 3.00 m, built area ≈ 196 m².
 
 ## Realistic walkthrough workflow
 1. **World Labs Marble** (generative 3D worlds): upload a panorama from `renders/pano/` as a *Panorama* input, export the world as `.spz` and commit it to `splats/<room>.spz` (e.g. `splats/sala.spz`). `passeio-realista.html` picks it up automatically.

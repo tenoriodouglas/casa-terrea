@@ -124,20 +124,20 @@ const WALLS = [
 const B = '#d9e5ec', Q = '#f6efe2', C = '#efe7d9';
 const ROOMS = [
   {n:'Estar / Jantar', s:'Estar / Jantar', r:[1.5,5,6.0,13.5], f:'wood', c:'#f5ecdc'},
-  {n:'Hall de entrada', s:'Hall', r:[6.0,5,10.5,6.8], f:'porc', c:'#eceae4'},
-  {n:'Cozinha', s:'Cozinha', r:[6.0,6.8,10.5,13.5], f:'porc', c:'#e6eef1'},
+  {n:'Hall de entrada', s:'Hall', r:[6.0,5,10.5,6.8], f:'wood', c:'#eceae4'},
+  {n:'Cozinha', s:'Cozinha', r:[6.0,6.8,10.5,13.5], f:'wood', c:'#e6eef1'},
   {n:'Jardim de inverno', s:'Jardim', r:[1.5,13.5,3.35,15.7], f:'pebble', c:'#d6e8c8', built:false},
-  {n:'Lavabo', s:'Lavabo', r:[3.35,13.5,5.35,15.7], f:'bath', c:B},
+  {n:'Lavabo', s:'Lavabo', r:[3.35,13.5,5.35,15.7], f:'wood', c:B},
   {n:'Circulação', s:'Circ.', r:[5.35,13.5,6.65,22.7], f:'wood', c:'#f1ede5'},
-  {n:'Lavanderia', s:'Lavanderia', r:[6.65,13.5,10.5,16.0], f:'bath', c:'#e3ecf0'},
-  {n:'Banheiro social', s:'Banheiro', r:[6.65,16.0,10.5,18.7], f:'bath', c:B},
+  {n:'Lavanderia', s:'Lavanderia', r:[6.65,13.5,10.5,16.0], f:'wood', c:'#e3ecf0'},
+  {n:'Banheiro social', s:'Banheiro', r:[6.65,16.0,10.5,18.7], f:'wood', c:B},
   {n:'Quarto 2', s:'Quarto 2', r:[6.65,18.7,10.5,22.7], f:'wood', c:Q},
   {n:'Quarto 3', s:'Quarto 3', r:[1.5,15.7,5.35,19.7], f:'wood', c:Q},
-  {n:'Banho suíte', s:'Banho', r:[1.5,19.7,4.0,22.3], f:'bath', c:B},
+  {n:'Banho suíte', s:'Banho', r:[1.5,19.7,4.0,22.3], f:'wood', c:B},
   {n:'Closet', s:'Closet', r:[4.0,19.7,5.35,22.3], f:'wood', c:C},
   {n:'Suíte master', s:'Suíte master', r:[1.5,22.3,5.35,26.7], f:'wood', c:Q},
   {n:'Escritório', s:'Escritório', r:[5.35,22.7,10.5,26.7], f:'wood', c:'#efeadf'},
-  {n:'Área gourmet', s:'Gourmet', r:[7.5,26.7,10.5,30.4], f:'stone', c:'#ede6d8'},
+  {n:'Churrasqueira / forno / pia', s:'Churrasq.', r:[9.0,26.7,10.5,30.4], f:'wood', c:'#ede6d8'},
 ];
 const area = r => (r.r[2]-r.r[0])*(r.r[3]-r.r[1]);
 
@@ -154,7 +154,7 @@ const SPOTS = [
   ['Quarto 3', 4.9, 19.0, 2, 16.5],
   ['Suíte master', 4.7, 22.9, 2, 25.5],
   ['Escritório', 6.0, 23.3, 10, 25],
-  ['Área gourmet', 8.2, 29.9, 10, 28],
+  ['Churrasqueira', 8.0, 29.9, 10, 28],
   ['Quintal / horta', 6.0, 32, 6, 39],
 ];
 
@@ -170,16 +170,16 @@ const PANOS = {
   quarto3:    {n:'Quarto 3', x:3.9, z:18.5, links:['corredor']},
   master:     {n:'Suíte master', x:2.5, z:24.0, links:['corredor','quintal']},
   escritorio: {n:'Escritório', x:7.6, z:24.6, links:['corredor']},
-  gourmet:    {n:'Área gourmet', x:8.4, z:28.5, links:['quintal']},
-  quintal:    {n:'Quintal e pergolado', x:5.0, z:32.0, links:['gourmet','master','horta']},
+  gourmet:    {n:'Churrasqueira', x:8.3, z:28.5, links:['quintal']},
+  quintal:    {n:'Quintal', x:5.0, z:32.0, links:['gourmet','master','horta']},
   horta:      {n:'Horta', x:6.0, z:36.5, links:['quintal']},
 };
 const PANO_YAW = -Math.PI/2;  // aligns the panorama image with world axes
 
 // Photorealistic renders shown in the gallery tab
 const RENDERS = [
-  ['renders/fachada.jpg', 'Fachada'], ['renders/aerea.jpg', 'Vista aérea'], ['renders/fundos.jpg', 'Quintal, pergolado e horta'],
-  ['renders/sala.jpg', 'Sala com jardim de inverno'], ['renders/cozinha.jpg', 'Cozinha'], ['renders/gourmet.jpg', 'Churrasqueira, pia e forno de pizza'],
+  ['renders/fachada.jpg', 'Fachada'], ['renders/aerea.jpg', 'Vista aérea'], ['renders/fundos.jpg', 'Quintal e horta'],
+  ['renders/sala.jpg', 'Sala com jardim de inverno'], ['renders/cozinha.jpg', 'Cozinha'], ['renders/gourmet.jpg', 'Churrasqueira com forno de pizza e pia'],
   ['renders/banho.jpg', 'Banheiro acessível'], ['renders/master.jpg', 'Suíte master'], ['renders/escritorio.jpg', 'Escritório'],
 ];
 
@@ -233,9 +233,9 @@ const TX = {
       let y = -rnd(0,200);
       while(y < h){
         const L = rnd(160,380);
-        g.fillStyle = `hsl(${rnd(26,32)},${rnd(34,44)}%,${rnd(44,56)}%)`; g.fillRect(x, y, pw, L);
+        g.fillStyle = `hsl(${rnd(30,36)},${rnd(28,36)}%,${rnd(62,70)}%)`; g.fillRect(x, y, pw, L);
         for(let i=0;i<14;i++){ g.strokeStyle = `rgba(70,40,15,${rnd(.04,.12)})`; g.beginPath(); const xx = x+rnd(0,pw); g.moveTo(xx,y); g.lineTo(xx+rnd(-4,4), y+L); g.stroke(); }
-        g.fillStyle = 'rgba(40,22,8,.45)'; g.fillRect(x, y, pw, 2); y += L;
+        g.fillStyle = 'rgba(60,35,15,.3)'; g.fillRect(x, y, pw, 2); y += L;
       }
       g.fillStyle = 'rgba(40,22,8,.4)'; g.fillRect(x, 0, 1.5, h);
     }
@@ -333,9 +333,8 @@ function buildGrounds(){
   floor(-120, -12, 130, -2.5, -0.02, texMat('asphalt', 250, 9.5, 4));
   floor(-120, -2.5, 130, 0, -0.01, texMat('concrete', 250, 2.5, 2.5));
   floor(0, 0, LOT.w, LOT.d, 0, texMat('grass', LOT.w, LOT.d, 2.5));
-  floor(6.5, 0, 12, 5, 0.006, texMat('concrete', 5.5, 5, 2.75));           // driveway
+  for(const x of [6.8, 8.4, 9.5, 11.1]) floor(x, 0, x+0.6, 5, 0.006, texMat('concrete', 0.6, 5, 2.5)); // grass driveway with wheel strips
   floor(1.5, 26.7, 4.8, 28.2, 0.03, texMat('wood', 3.3, 1.5, 1.6));         // master deck
-  floor(5.35, 26.7, 7.5, 30.4, 0.02, texMat('stone', 2.15, 3.7, 1.6));      // pergola floor
   for(let z=5.6; z<26; z+=0.9) if(z < 13.2 || z > 16) boxR(0.45, z, 1.05, z+0.55, 0, 0.03, MAT.stoneTop, {cast:false}); // left pavers
   for(let z=5.4; z<26.4; z+=0.8) boxR(10.95, z, 11.6, z+0.5, 0, 0.03, MAT.stoneTop, {cast:false});                      // path to gourmet
   for(let z=0.4; z<4.6; z+=0.8) boxR(6.4, z, 7.4, z+0.5, 0, 0.012, MAT.stoneTop, {cast:false});                           // entrance path
@@ -438,20 +437,20 @@ function buildRoof(){
   boxR(1.4, 4.9, 10.6, 13.5, H, H+0.2, MAT.slab, g);
   boxR(3.35, 13.5, 10.6, 15.7, H, H+0.2, MAT.slab, g);
   boxR(1.4, 15.7, 10.6, 26.8, H, H+0.2, MAT.slab, g);
-  boxR(7.4, 26.8, 10.6, 30.5, H, H+0.2, MAT.slab, g);                         // gourmet cover
+  boxR(8.9, 26.8, 10.6, 30.5, H, H+0.2, MAT.slab, g);                         // grill cover
   const ph = H+0.9;
   boxR(1.35, 4.85, 10.65, 5.0, H, ph, MAT.wall, g);
   boxR(10.5, 4.85, 10.65, 26.85, H, ph, MAT.wall, g);
   boxR(1.35, 4.85, 1.5, 26.85, H, ph, MAT.wall, g);
   boxR(1.35, 26.7, 10.65, 26.85, H, ph, MAT.wall, g);
-  boxR(7.35, 30.35, 10.65, 30.55, H-0.25, H+0.3, MAT.wall, g);
-  boxR(7.35, 26.85, 7.5, 30.55, H-0.25, H+0.3, MAT.wall, g);
+  boxR(8.85, 30.35, 10.65, 30.55, H-0.25, H+0.3, MAT.wall, g);
+  boxR(8.85, 26.85, 9.0, 30.55, H-0.25, H+0.3, MAT.wall, g);
   boxR(9.95, 28.35, 10.45, 28.85, H, H+1.6, brickMat(0.5, 1.6), g);          // shared chimney
   boxR(6.0, 3.5, 8.6, 4.85, H-0.15, H+0.05, MAT.slab);                        // entrance canopy
   for(let x=7.55; x<8.25; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);   // wood slats
   for(let x=6.05; x<6.25; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);
   [[3.75,7.5],[3.75,11.5],[8.2,5.9],[8.2,8.6],[8.2,12.0],[6,15],[6,18.5],[6,21.5],[4.35,14.6],[8.5,14.7],[8.5,17.3],
-   [8.5,20.7],[3.4,17.7],[2.75,21.0],[4.7,21.0],[3.4,24.5],[7.9,24.7],[9.0,28.5]].forEach(([x,z])=>{
+   [8.5,20.7],[3.4,17.7],[2.75,21.0],[4.7,21.0],[3.4,24.5],[7.9,24.7],[9.45,28.5]].forEach(([x,z])=>{
     mesh(new THREE.CylinderGeometry(0.14,0.14,0.02,20), MAT.lamp, x, H-0.01, z, {group:roof, cast:false});
   });
 }
@@ -630,16 +629,7 @@ function buildFurniture(){
   boxR(10.05, 29.6, 10.35, 29.9, 1.3, 2.5, brick); boxR(10.05, 28.85, 10.35, 29.9, 2.3, 2.5, brick); // flue into chimney
   boxR(9.55, 30.3, 10.42, 30.38, 0, 0.6, MAT.wood);                                         // firewood rack
   for(let i=0;i<6;i++){ const l = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.75, 8), MAT.trunk, 9.65+(i%3)*0.13, 0.1+Math.floor(i/3)*0.1, 30.15); l.rotation.x = Math.PI/2; }
-  pendant(8.6, 28.5, 2.1);
-
-  // --- Pergola with climbing plant and outdoor table ---
-  [[5.45,30.3],[7.45,30.3]].forEach(([x,z])=>boxR(x-0.07, z-0.07, x+0.07, z+0.07, 0, 2.9, MAT.wood, {solid:true}));
-  boxR(5.38, 26.75, 5.52, 30.4, 2.75, 2.95, MAT.wood); boxR(7.38, 26.75, 7.52, 30.4, 2.75, 2.95, MAT.wood);
-  for(let z=26.95; z<30.4; z+=0.42) boxR(5.3, z, 7.6, z+0.06, 2.95, 3.08, MAT.wood);
-  for(let i=0;i<14;i++) mesh(new THREE.IcosahedronGeometry(rnd(0.22,0.38), 1), MAT.leaf2, rnd(5.4,7.5), 3.1, rnd(27,30.3), {cast:false});
-  boxR(5.9, 27.6, 7.0, 29.6, 0.73, 0.78, MAT.wood, {solid:true, plan:'table'});
-  [[6.0,27.7],[6.9,27.7],[6.0,29.5],[6.9,29.5]].forEach(([x,z])=>boxR(x-0.04,z-0.04,x+0.04,z+0.04,0,0.73,MAT.wood));
-  [28.1, 29.1].forEach(z=>{ chair(5.55, z, Math.PI/2); chair(7.35, z, -Math.PI/2); });
+  boxR(8.95, 30.25, 9.1, 30.4, 0, H, MAT.wall, {solid:true});                // corner pillar
 
   // --- Herb planter next to the grill ---
   boxR(7.8, 30.6, 9.6, 31.05, 0, 0.7, MAT.wood, {solid:true, plan:'horta'});
@@ -729,7 +719,6 @@ function whereAmI(x, z){
   if(x < 1.5 && z < 26.7) return 'Jardim lateral';
   if(x > 10.5 && z < 30.4) return 'Passagem lateral / varal';
   if(z > 33.4) return 'Horta';
-  if(x > 5.35 && x < 7.5 && z < 30.4) return 'Pergolado';
   return 'Quintal';
 }
 
@@ -840,8 +829,8 @@ function buildPlan(){
   let s = `<svg id="planSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${Hh}" width="${W}" font-family="system-ui,sans-serif">`;
   // Site zones
   s += R([0,0,12,41], 'fill="#e4eedc" stroke="#5c6b52" stroke-width="1.5" stroke-dasharray="6 4"');
-  s += R([6.5,0,12,5], 'fill="#e3e2df"');
-  s += R([1.5,26.7,4.8,28.2], 'fill="#e8d6bd"') + R([5.35,26.7,7.5,30.4], 'fill="#e6e0d4" stroke="#b9a98f" stroke-dasharray="3 2"');
+  [6.8, 8.4, 9.5, 11.1].forEach(x=>{ s += R([x,0,x+0.6,5], 'fill="#dcdad5"'); });
+  s += R([1.5,26.7,4.8,28.2], 'fill="#e8d6bd"');
   // Rooms
   ROOMS.slice().sort((a,b)=>area(b)-area(a)).forEach(r=>{ s += R(r.r, `fill="${r.c}"`); });
   // Furniture
@@ -871,7 +860,7 @@ function buildPlan(){
     }
   });
   // Labels
-  const POS = {'Estar / Jantar':[3.75,9.0], 'Cozinha':[8.2,12.3], 'Hall de entrada':[8.9,5.6], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[7.9,25.6], 'Área gourmet':[8.6,27.2], 'Closet':[4.67,21.2], 'Banho suíte':[3.1,21.5], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
+  const POS = {'Estar / Jantar':[3.75,9.0], 'Cozinha':[8.2,12.3], 'Hall de entrada':[8.9,5.6], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[7.9,25.6], 'Churrasqueira / forno / pia':[9.75,30.0], 'Closet':[4.67,21.2], 'Banho suíte':[3.1,21.5], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
   ROOMS.forEach(r=>{
     if(!r.s) return;
     const cx = (r.r[0]+r.r[2])/2, cz = (r.r[1]+r.r[3])/2, small = (r.r[2]-r.r[0]) < 2.6;
@@ -881,10 +870,10 @@ function buildPlan(){
     s += `<text x="${X(lx)}" y="${Y(lz)+(small?9:12)}" text-anchor="middle" font-size="${small?7:8.5}" fill="#5b6570">${fmt(area(r))} m²</text>`;
   });
   const lbl = (x, z, t, fs=9, c='#4b5a43') => `<text x="${X(x)}" y="${Y(z)}" text-anchor="middle" font-size="${fs}" fill="${c}" font-weight="600">${t}</text>`;
-  s += lbl(9.25, 2.0, 'Garagem 2 vagas', 8.5, '#555') + lbl(3.2, 4.2, 'Jardim', 9) + lbl(4.0, 32.4, 'Gramado', 9) + lbl(6, 33.25, 'HORTA · 5 canteiros elevados', 9, '#6b4b25');
-  s += lbl(3.15, 27.6, 'Deck', 7.5, '#6b5030') + lbl(6.4, 30.0, 'Pergolado', 7.5, '#6b5030') + lbl(8.7, 31.35, 'Temperos', 7, '#4b5a43') + lbl(0.55, 33.95, 'Compostagem', 6, '#6b5030');
+  s += lbl(9.25, 2.4, 'Garagem 2 vagas (gramada)', 8, '#555') + lbl(3.2, 4.2, 'Jardim', 9) + lbl(4.0, 32.4, 'Gramado', 9) + lbl(6, 33.25, 'HORTA · 5 canteiros elevados', 9, '#6b4b25');
+  s += lbl(3.15, 27.6, 'Deck', 7.5, '#6b5030') + lbl(8.7, 31.35, 'Temperos', 7, '#4b5a43') + lbl(0.55, 33.95, 'Compostagem', 6, '#6b5030');
   const vt = (x, z, t) => `<text x="${X(x)}" y="${Y(z)}" font-size="8" fill="#4b5a43" text-anchor="middle" transform="rotate(-90 ${X(x)} ${Y(z)})">${t}</text>`;
-  s += vt(0.75, 20, 'Jardim lateral · recuo 1,50 m') + vt(11.25, 22.5, 'Passagem lateral → gourmet') + vt(11.85, 16.5, 'Varal');
+  s += vt(0.75, 20, 'Jardim lateral · recuo 1,50 m') + vt(11.25, 22.5, 'Passagem lateral → churrasqueira') + vt(11.85, 16.5, 'Varal');
   // Dimensions
   const dimH = (x0, x1, yPx, t) => `<g stroke="#333" stroke-width=".8"><line x1="${X(x0)}" y1="${yPx}" x2="${X(x1)}" y2="${yPx}"/><line x1="${X(x0)}" y1="${yPx-4}" x2="${X(x0)}" y2="${yPx+4}"/><line x1="${X(x1)}" y1="${yPx-4}" x2="${X(x1)}" y2="${yPx+4}"/></g><text x="${(X(x0)+X(x1))/2}" y="${yPx-4}" font-size="9" text-anchor="middle" fill="#222">${t}</text>`;
   const dimV = (z0, z1, xPx, t) => `<g stroke="#333" stroke-width=".8"><line x1="${xPx}" y1="${Y(z0)}" x2="${xPx}" y2="${Y(z1)}"/><line x1="${xPx-4}" y1="${Y(z0)}" x2="${xPx+4}" y2="${Y(z0)}"/><line x1="${xPx-4}" y1="${Y(z1)}" x2="${xPx+4}" y2="${Y(z1)}"/></g><text x="${xPx-5}" y="${(Y(z0)+Y(z1))/2}" font-size="9" text-anchor="middle" fill="#222" transform="rotate(-90 ${xPx-5} ${(Y(z0)+Y(z1))/2})">${t}</text>`;
@@ -898,11 +887,11 @@ function buildPlan(){
 
   // Area table
   const built = ROOMS.filter(r=>r.built !== false).reduce((a,r)=>a+area(r), 0);
-  const lot = LOT.w*LOT.d, paved = 5.5*5 + 3.3*1.5 + 2.15*3.7;
+  const lot = LOT.w*LOT.d, paved = 4*0.6*5 + 3.3*1.5;
   const green = lot - built - paved - (LOT.w - 9)*21.7*0.25;
   const rows = ROOMS.map(r=>`<tr><td>${r.n}</td><td>${fmt(area(r))} m²</td></tr>`).join('');
   document.getElementById('info').innerHTML = `
-    <h2>Casa térrea · suíte + 2 quartos + escritório</h2>
+    <h2>Casa térrea · 3 quartos (1 suíte) + escritório</h2>
     <p>Terreno 12 × 41 m (${fmt(lot)} m²) · pé-direito 3,00 m · laje plana com platibanda · medidas de eixo.</p>
     <table>${rows}<tr class="tot"><td>Área construída (coberta)</td><td>${fmt(built)} m²</td></tr></table>
     <h3>Áreas verdes e índices</h3>
@@ -915,7 +904,7 @@ function buildPlan(){
     <h3>Acessibilidade (base NBR 9050)</h3>
     <p>Portas internas de 0,90 m (vão livre ≥ 0,80 m), corredor de 1,30 m, banheiros com giro de 1,50 m para cadeira de rodas (círculos tracejados), box sem degrau, espaço para barras de apoio e lavatório sem gabinete frontal. Entrada principal com porta pivotante de 1,20 m, sem degraus.</p>
     <h3>Observações</h3>
-    <p>Estudo preliminar. Recuos, taxa de ocupação e permeabilidade variam por município — validar com a lei de zoneamento local. Planta desenhada como vista da rua (frente embaixo). Lavabo na transição entre a sala e os quartos; lavanderia abre para o corredor e para o varal no recuo lateral, que leva à área gourmet. Banheiro social compartilhado pelos quartos 2 e 3. Área gourmet compacta: pia, churrasqueira e forno de pizza aquecido pela mesma lenha, com chaminé única. Projeto legal, estrutural e de instalações precisam de arquiteto/engenheiro com RRT/ART.</p>`;
+    <p>Estudo preliminar. Recuos, taxa de ocupação e permeabilidade variam por município — validar com a lei de zoneamento local. Planta desenhada como vista da rua (frente embaixo). Lavabo na transição entre a sala e os quartos; lavanderia abre para o corredor e para o varal no recuo lateral, que leva à churrasqueira. Banheiro social compartilhado pelos quartos 2 e 3. Churrasqueira compacta coberta (sem área de mesas): pia, churrasqueira e forno de pizza aquecido pela mesma lenha, com chaminé única. Projeto legal, estrutural e de instalações precisam de arquiteto/engenheiro com RRT/ART.</p>`;
 
   let z = 1;
   const svgEl = () => document.getElementById('planSvg');
