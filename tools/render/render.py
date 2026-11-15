@@ -37,7 +37,7 @@ CAMS = {
     'banho':      ((7.0, 1.5, 16.3), (10.2, 1.0, 17.8), 14, True),
     'master':     ((2.0, 1.5, 22.6), (5.3, 0.8, 24.5), 15, True),
     'escritorio': ((7.0, 1.5, 23.4), (10.2, 1.0, 24.6), 14, True),
-    'closet':     ((5.9, 1.5, 24.3), (9.8, 1.1, 26.3), 14, True),
+    'closet':     ((6.85, 1.55, 25.15), (10.3, 0.9, 26.5), 14, True),
 }
 # Panorama spots come from the site itself (PANOS in index.html): name -> (x, z)
 PANOS = {k: (v['x'], v['z']) for k, v in SITE['panos'].items()}
