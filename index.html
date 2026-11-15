@@ -101,42 +101,47 @@ const GLASS = new Set(['slide','win','winH','big']);
 // Interior doors are 0.90 m (0.80 m clear) for wheelchair access
 const WALLS = [
   {ax:'x', c:5,    s:1.5,  e:10.5, t:.2,  ops:[[2.0,5.6,'big'],[6.3,7.5,'pivot',1],[8.3,10.0,'win']]},
-  {ax:'z', c:1.5,  s:5,    e:13.5, t:.2,  ops:[[9.0,12.5,'win']]},
+  {ax:'z', c:1.5,  s:5,    e:13.5, t:.2,  ops:[[6.2,8.6,'win'],[10.0,12.6,'win']]},
+  {ax:'z', c:6.0,  s:5,    e:9.4,  t:.15, ops:[[5.6,6.5,'door',-1]]},
+  {ax:'x', c:9.4,  s:1.5,  e:6.0,  t:.15, ops:[[4.9,5.8,'door',-1]]},
   {ax:'z', c:1.5,  s:15.7, e:26.7, t:.2,  ops:[[16.4,18.8,'win'],[20.2,21.4,'winH'],[23.2,25.6,'win']]},
-  {ax:'z', c:10.5, s:5,    e:26.7, t:.2,  ops:[[8.0,9.6,'win'],[11.8,12.7,'door',-1],[14.4,15.3,'door',-1],[16.6,17.8,'winH'],[19.6,21.8,'win'],[23.3,25.6,'win']]},
+  {ax:'z', c:10.5, s:5,    e:26.7, t:.2,  ops:[[8.0,9.6,'win'],[11.8,12.7,'door',-1],[14.4,15.3,'door',-1],[16.6,17.8,'winH'],[19.6,21.8,'win'],[23.3,24.7,'win'],[25.5,26.3,'winH']]},
   {ax:'z', c:10.5, s:26.7, e:30.4, t:.2,  ops:[]},
   {ax:'x', c:26.7, s:1.5,  e:10.5, t:.2,  ops:[[1.9,4.7,'slide'],[5.6,7.3,'big']]},
   {ax:'x', c:13.5, s:1.5,  e:5.35, t:.15, ops:[[1.65,3.25,'big']]},
   {ax:'x', c:13.5, s:6.65, e:10.5, t:.15, ops:[]},
   {ax:'z', c:3.35, s:13.5, e:15.7, t:.15, ops:[[14.2,15.0,'winH']]},
   {ax:'x', c:15.7, s:1.5,  e:5.35, t:.15, ops:[]},
-  {ax:'z', c:5.35, s:13.5, e:26.7, t:.15, ops:[[13.9,14.8,'door',-1],[18.5,19.4,'door',-1],[20.7,21.6,'door',-1]]},
-  {ax:'z', c:6.65, s:13.5, e:22.7, t:.15, ops:[[14.3,15.2,'door',1],[16.3,17.2,'door',1],[19.0,19.9,'door',1]]},
-  {ax:'x', c:22.7, s:5.35, e:10.5, t:.15, ops:[[5.5,6.4,'door',1]]},
+  {ax:'z', c:5.35, s:13.5, e:26.7, t:.15, ops:[[13.9,14.8,'door',-1],[18.5,19.4,'door',-1],[25.6,26.5,'open']]},
+  {ax:'z', c:6.65, s:13.5, e:26.7, t:.15, ops:[[14.3,15.2,'door',1],[16.3,17.2,'door',1],[19.0,19.9,'door',1],[22.9,23.8,'door',1],[25.1,26.55,'open']]},
+  {ax:'x', c:22.7, s:6.65, e:10.5, t:.15, ops:[]},
+  {ax:'x', c:24.0, s:5.35, e:6.65, t:.12, ops:[[5.5,6.4,'door',1]]},
+  {ax:'x', c:25.0, s:6.65, e:10.5, t:.12, ops:[]},
   {ax:'x', c:16.0, s:6.65, e:10.5, t:.15, ops:[]},
   {ax:'x', c:18.7, s:6.65, e:10.5, t:.15, ops:[]},
   {ax:'x', c:19.7, s:1.5,  e:5.35, t:.15, ops:[]},
-  {ax:'z', c:4.0,  s:19.7, e:22.3, t:.12, ops:[[20.7,21.6,'door',-1]]},
-  {ax:'x', c:22.3, s:1.5,  e:5.35, t:.12, ops:[[4.1,5.25,'open']]},
+  {ax:'x', c:22.3, s:1.5,  e:5.35, t:.12, ops:[[2.5,3.4,'door',-1]]},
 ];
 
 // Rooms: r = [x0,z0,x1,z1]; built:false = not counted as built area
 const B = '#d9e5ec', Q = '#f6efe2', C = '#efe7d9';
 const ROOMS = [
-  {n:'Estar / Jantar', s:'Estar / Jantar', r:[1.5,5,6.0,13.5], f:'wood', c:'#f5ecdc'},
+  {n:'Sala de estar', s:'Estar', r:[1.5,5,6.0,9.4], f:'wood', c:'#f5ecdc'},
+  {n:'Sala de jantar', s:'Jantar', r:[1.5,9.4,6.0,13.5], f:'wood', c:'#f3eadb'},
   {n:'Hall de entrada', s:'Hall', r:[6.0,5,10.5,6.8], f:'wood', c:'#eceae4'},
   {n:'Cozinha', s:'Cozinha', r:[6.0,6.8,10.5,13.5], f:'wood', c:'#e6eef1'},
   {n:'Jardim de inverno', s:'Jardim', r:[1.5,13.5,3.35,15.7], f:'pebble', c:'#d6e8c8', built:false},
   {n:'Lavabo', s:'Lavabo', r:[3.35,13.5,5.35,15.7], f:'wood', c:B},
-  {n:'Circulação', s:'Circ.', r:[5.35,13.5,6.65,22.7], f:'wood', c:'#f1ede5'},
+  {n:'Circulação', s:'Circ.', r:[5.35,13.5,6.65,24.0], f:'wood', c:'#f1ede5'},
   {n:'Lavanderia', s:'Lavanderia', r:[6.65,13.5,10.5,16.0], f:'wood', c:'#e3ecf0'},
   {n:'Banheiro social', s:'Banheiro', r:[6.65,16.0,10.5,18.7], f:'wood', c:B},
   {n:'Quarto 2', s:'Quarto 2', r:[6.65,18.7,10.5,22.7], f:'wood', c:Q},
   {n:'Quarto 3', s:'Quarto 3', r:[1.5,15.7,5.35,19.7], f:'wood', c:Q},
-  {n:'Banho suíte', s:'Banho', r:[1.5,19.7,4.0,22.3], f:'wood', c:B},
-  {n:'Closet', s:'Closet', r:[4.0,19.7,5.35,22.3], f:'wood', c:C},
+  {n:'Banho suíte', s:'Banho suíte', r:[1.5,19.7,5.35,22.3], f:'wood', c:B},
   {n:'Suíte master', s:'Suíte master', r:[1.5,22.3,5.35,26.7], f:'wood', c:Q},
-  {n:'Escritório', s:'Escritório', r:[5.35,22.7,10.5,26.7], f:'wood', c:'#efeadf'},
+  {n:'Hall da suíte', s:'', r:[5.35,24.0,6.65,26.7], f:'wood', c:C},
+  {n:'Closet', s:'Closet', r:[6.65,25.0,10.5,26.7], f:'wood', c:C},
+  {n:'Escritório', s:'Escritório', r:[6.65,22.7,10.5,25.0], f:'wood', c:'#efeadf'},
   {n:'Churrasqueira / forno / pia', s:'Churrasq.', r:[9.0,26.7,10.5,30.4], f:'wood', c:'#ede6d8'},
 ];
 const area = r => (r.r[2]-r.r[0])*(r.r[3]-r.r[1]);
@@ -144,32 +149,35 @@ const area = r => (r.r[2]-r.r[0])*(r.r[3]-r.r[1]);
 // Walk-mode teleport points: [label, x, z, lookX, lookZ]
 const SPOTS = [
   ['Calçada (chegada)', 7.0, -1.6, 7.0, 8],
-  ['Sala de estar', 5.6, 5.6, 1.8, 11],
-  ['Sala de jantar', 5.5, 12.8, 2.0, 9.5],
+  ['Sala de estar', 4.6, 8.5, 3.0, 5.5],
+  ['Sala de jantar', 5.5, 12.8, 2.0, 10.0],
   ['Cozinha', 6.4, 7.4, 10, 12.5],
   ['Corredor', 6.0, 13.8, 6.0, 22],
   ['Lavanderia', 7.2, 14.9, 10, 14.5],
   ['Banheiro social', 7.1, 16.9, 10, 17.5],
   ['Quarto 2', 7.2, 19.5, 9, 22],
   ['Quarto 3', 4.9, 19.0, 2, 16.5],
-  ['Suíte master', 4.7, 22.9, 2, 25.5],
-  ['Escritório', 6.0, 23.3, 10, 25],
+  ['Suíte master', 2.4, 23.0, 5, 24.3],
+  ['Closet da suíte', 6.0, 25.7, 9.5, 26.0],
+  ['Escritório', 7.2, 23.4, 10, 24],
   ['Churrasqueira', 8.0, 29.9, 10, 28],
   ['Quintal / horta', 6.0, 32, 6, 39],
 ];
 
 // 360 tour: ray-traced equirectangular panoramas; links = neighbours reachable by hotspot
 const PANOS = {
-  rua:        {n:'Frente da casa', x:7.0, z:-1.5, links:['sala']},
-  sala:       {n:'Sala de estar / jantar', x:3.6, z:9.3, links:['rua','cozinha','corredor']},
-  cozinha:    {n:'Cozinha', x:8.0, z:12.3, links:['sala','corredor']},
-  corredor:   {n:'Corredor dos quartos', x:6.0, z:15.5, links:['sala','lavanderia','banho','quarto2','quarto3','master','escritorio']},
+  rua:        {n:'Frente da casa', x:7.0, z:-1.5, links:['sala','cozinha']},
+  sala:       {n:'Sala de estar', x:3.6, z:8.4, links:['rua','jantar']},
+  jantar:     {n:'Sala de jantar', x:5.3, z:11.2, links:['sala','cozinha','corredor']},
+  cozinha:    {n:'Cozinha', x:8.0, z:12.3, links:['jantar','corredor','rua']},
+  corredor:   {n:'Corredor dos quartos', x:6.0, z:15.5, links:['jantar','lavanderia','banho','quarto2','quarto3','closet','escritorio']},
   lavanderia: {n:'Lavanderia', x:8.4, z:15.0, links:['corredor']},
   banho:      {n:'Banheiro social', x:8.0, z:17.3, links:['corredor']},
   quarto2:    {n:'Quarto 2', x:8.0, z:19.9, links:['corredor']},
   quarto3:    {n:'Quarto 3', x:3.9, z:18.5, links:['corredor']},
-  master:     {n:'Suíte master', x:2.5, z:24.0, links:['corredor','quintal']},
-  escritorio: {n:'Escritório', x:7.6, z:24.6, links:['corredor']},
+  master:     {n:'Suíte master', x:2.5, z:24.0, links:['closet','quintal']},
+  closet:     {n:'Closet da suíte', x:7.6, z:25.5, links:['master','corredor']},
+  escritorio: {n:'Escritório', x:7.8, z:23.9, links:['corredor']},
   gourmet:    {n:'Churrasqueira', x:8.3, z:28.5, links:['quintal']},
   quintal:    {n:'Quintal', x:5.0, z:32.0, links:['gourmet','master','horta']},
   horta:      {n:'Horta', x:6.0, z:36.5, links:['quintal']},
@@ -179,8 +187,8 @@ const PANO_YAW = -Math.PI/2;  // aligns the panorama image with world axes
 // Photorealistic renders shown in the gallery tab
 const RENDERS = [
   ['renders/fachada.jpg', 'Fachada'], ['renders/aerea.jpg', 'Vista aérea'], ['renders/fundos.jpg', 'Quintal e horta'],
-  ['renders/sala.jpg', 'Sala com jardim de inverno'], ['renders/cozinha.jpg', 'Cozinha'], ['renders/gourmet.jpg', 'Churrasqueira com forno de pizza e pia'],
-  ['renders/banho.jpg', 'Banheiro acessível'], ['renders/master.jpg', 'Suíte master'], ['renders/escritorio.jpg', 'Escritório'],
+  ['renders/sala.jpg', 'Sala de estar'], ['renders/jantar.jpg', 'Jantar integrado à cozinha'], ['renders/cozinha.jpg', 'Cozinha'], ['renders/gourmet.jpg', 'Churrasqueira com forno de pizza e pia'],
+  ['renders/banho.jpg', 'Banheiro acessível'], ['renders/master.jpg', 'Suíte master'], ['renders/closet.jpg', 'Closet da suíte'], ['renders/escritorio.jpg', 'Escritório'],
 ];
 
 // ================= Renderer / scene =================
@@ -449,8 +457,8 @@ function buildRoof(){
   boxR(6.0, 3.5, 8.6, 4.85, H-0.15, H+0.05, MAT.slab);                        // entrance canopy
   for(let x=7.55; x<8.25; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);   // wood slats
   for(let x=6.05; x<6.25; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);
-  [[3.75,7.5],[3.75,11.5],[8.2,5.9],[8.2,8.6],[8.2,12.0],[6,15],[6,18.5],[6,21.5],[4.35,14.6],[8.5,14.7],[8.5,17.3],
-   [8.5,20.7],[3.4,17.7],[2.75,21.0],[4.7,21.0],[3.4,24.5],[7.9,24.7],[9.45,28.5]].forEach(([x,z])=>{
+  [[3.75,7.2],[3.75,11.3],[8.2,5.9],[8.2,8.6],[8.2,12.0],[6,15],[6,18.5],[6,21.5],[4.35,14.6],[8.5,14.7],[8.5,17.3],
+   [8.5,20.7],[3.4,17.7],[2.75,21.0],[4.3,21.0],[3.4,24.5],[8.5,23.8],[8.5,25.9],[6,25.3],[9.45,28.5]].forEach(([x,z])=>{
     mesh(new THREE.CylinderGeometry(0.14,0.14,0.02,20), MAT.lamp, x, H-0.01, z, {group:roof, cast:false});
   });
 }
@@ -465,7 +473,7 @@ function buildLights(){
   sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
   scene.add(sun, sun.target);
   // Warm interior fill lights
-  [[3.7,9],[8.2,10],[6,18],[8.5,20.7],[3.4,17.7],[3.4,24.5],[7.9,24.7]].forEach(([x,z])=>{
+  [[3.7,7.2],[3.7,11.3],[8.2,10],[6,18],[8.5,20.7],[3.4,17.7],[3.4,24.5],[8.5,23.8]].forEach(([x,z])=>{
     const p = new THREE.PointLight(0xffe2b8, 0.55, 9, 1.6); p.position.set(x, H-0.3, z); scene.add(p);
   });
 }
@@ -530,22 +538,25 @@ function shower(x0, z0, x1, z1, glass){
 }
 
 function buildFurniture(){
-  // --- Living / dining ---
-  floor(2.2, 5.7, 4.6, 8.7, 0.03, MAT.rug);
-  boxR(1.58, 5.7, 2.05, 8.7, 0.25, 0.6, MAT.wood, {solid:true, plan:'furn'});
-  boxR(1.6, 6.4, 1.66, 8.0, 1.0, 1.95, MAT.black, {cast:false});
-  boxR(4.3, 5.8, 5.25, 8.8, 0.15, 0.45, MAT.fabric, {solid:true, plan:'sofa'});
-  boxR(5.0, 5.8, 5.25, 8.8, 0.45, 0.88, MAT.fabric);
-  boxR(4.3, 5.8, 5.25, 6.0, 0.45, 0.65, MAT.fabric); boxR(4.3, 8.6, 5.25, 8.8, 0.45, 0.65, MAT.fabric);
-  boxR(4.4, 6.5, 4.95, 6.9, 0.45, 0.75, MAT.pillow); boxR(4.4, 7.7, 4.95, 8.1, 0.45, 0.75, MAT.pillow);
-  boxR(2.9, 6.6, 3.9, 7.9, 0.32, 0.38, MAT.woodLight, {plan:'furn'});
-  boxR(3.25, 7.0, 3.55, 7.4, 0.38, 0.5, MAT.white);
-  plantPot(5.6, 5.5); plantPot(5.7, 13.1, 1.2);
-  boxR(2.4, 10.2, 4.9, 11.6, 0.72, 0.77, MAT.wood, {solid:true, plan:'table'});
-  [[2.5,10.3],[4.8,10.3],[2.5,11.5],[4.8,11.5]].forEach(([x,z])=>boxR(x-0.04,z-0.04,x+0.04,z+0.04,0,0.72,MAT.wood));
-  [2.85, 3.65, 4.45].forEach(x=>{ chair(x, 9.85, 0); chair(x, 11.95, Math.PI); });
-  pendant(3.25, 10.9, 1.85); pendant(4.05, 10.9, 1.85);
-  boxR(1.58, 12.6, 2.05, 13.35, 0, 0.8, MAT.wood, {plan:'furn'});
+  // --- Living room (closed, door to the hall and to the dining room) ---
+  floor(2.0, 5.9, 5.0, 8.3, 0.03, MAT.rug);
+  boxR(2.0, 5.6, 5.0, 6.5, 0.15, 0.45, MAT.fabric, {solid:true, plan:'sofa'});
+  boxR(2.0, 5.6, 5.0, 5.85, 0.45, 0.88, MAT.fabric);
+  boxR(2.0, 5.6, 2.2, 6.5, 0.45, 0.65, MAT.fabric); boxR(4.8, 5.6, 5.0, 6.5, 0.45, 0.65, MAT.fabric);
+  boxR(2.6, 5.9, 3.0, 6.45, 0.45, 0.75, MAT.pillow); boxR(4.0, 5.9, 4.4, 6.45, 0.45, 0.75, MAT.pillow);
+  boxR(2.9, 7.0, 4.1, 7.8, 0.32, 0.38, MAT.woodLight, {plan:'furn'});
+  boxR(3.3, 7.2, 3.6, 7.5, 0.38, 0.5, MAT.white);
+  boxR(2.2, 8.9, 4.8, 9.32, 0.25, 0.6, MAT.wood, {solid:true, plan:'furn'});
+  boxR(2.6, 9.3, 4.4, 9.34, 1.0, 2.0, MAT.black, {cast:false});
+  boxR(1.6, 6.9, 2.3, 7.7, 0.2, 0.75, MAT.fabric2, {plan:'furn'});
+  plantPot(5.6, 5.5); plantPot(1.85, 9.0, 0.9);
+
+  // --- Dining room (integrated with the kitchen) ---
+  boxR(2.4, 10.6, 4.9, 12.0, 0.72, 0.77, MAT.wood, {solid:true, plan:'table'});
+  [[2.5,10.7],[4.8,10.7],[2.5,11.9],[4.8,11.9]].forEach(([x,z])=>boxR(x-0.04,z-0.04,x+0.04,z+0.04,0,0.72,MAT.wood));
+  [2.85, 3.65, 4.45].forEach(x=>{ chair(x, 10.25, 0); chair(x, 12.35, Math.PI); });
+  pendant(3.25, 11.3, 1.85); pendant(4.05, 11.3, 1.85);
+  plantPot(5.6, 13.1, 1.1);
 
   // --- Winter garden (open to the sky) ---
   tree(2.4, 14.6, 0.55);
@@ -594,23 +605,25 @@ function buildFurniture(){
   boxR(1.58, 15.78, 2.3, 16.2, 0, 0.5, MAT.wood); boxR(4.1, 15.78, 4.55, 16.2, 0, 0.5, MAT.wood);
   wardrobe(1.6, 19.08, 3.9, 19.62);
 
-  // --- Master suite ---
+  // --- Master suite: bedroom, accessible bathroom and walk-in closet ---
   bed(3.3, 23.4, 5.27, 25.2, 'x+');
-  boxR(4.85, 22.95, 5.27, 23.35, 0, 0.5, MAT.wood); boxR(4.85, 25.25, 5.27, 25.65, 0, 0.5, MAT.wood);
+  boxR(4.85, 22.95, 5.27, 23.35, 0, 0.5, MAT.wood); boxR(4.85, 25.25, 5.27, 25.55, 0, 0.5, MAT.wood);
   boxR(1.6, 22.5, 2.3, 23.2, 0.2, 0.75, MAT.fabric, {plan:'furn'});
-  wardrobe(4.08, 19.78, 5.27, 20.35);
-  shower(1.58, 19.78, 2.7, 21.0, [1.58, 20.98, 2.4, 21.02]);
-  toilet(3.7, 20.05, 0);
-  vanity(1.58, 21.3, 2.0, 22.22, [1.56, 21.3, 1.58, 22.22]);
+  shower(1.58, 19.78, 2.9, 21.0, [1.58, 20.98, 2.4, 21.02]);
+  toilet(5.05, 20.4, -Math.PI/2);
+  vanity(3.0, 19.78, 4.5, 20.25, [3.0, 19.76, 4.5, 19.78]);
+  boxR(5.31, 20.85, 5.35, 21.6, 0.75, 0.79, MAT.steel, {cast:false});                     // grab bar
+  wardrobe(6.72, 26.1, 10.42, 26.62);
+  wardrobe(9.85, 25.08, 10.42, 26.1);
+  boxR(7.6, 25.45, 8.8, 25.85, 0, 0.9, MAT.white, {solid:true, plan:'furn'});              // closet island
+  boxR(5.42, 24.1, 5.6, 25.4, 1.0, 2.0, MAT.mirror, {cast:false});                         // dressing mirror
 
   // --- Home office ---
-  boxR(9.8, 23.3, 10.42, 25.3, 0.72, 0.76, MAT.wood, {solid:true, plan:'table'});
-  boxR(10.35, 23.6, 10.4, 25.0, 0.76, 1.15, MAT.black, {cast:false});
-  chair(9.35, 24.3, -Math.PI/2);
-  boxR(7.0, 22.78, 10.42, 23.15, 0, 2.0, MAT.wood, {solid:true, plan:'furn'});
-  boxR(5.5, 24.9, 6.3, 26.3, 0.15, 0.45, MAT.fabric, {solid:true, plan:'sofa'});
-  boxR(5.45, 24.9, 5.65, 26.3, 0.45, 0.85, MAT.fabric);
-  plantPot(7.6, 26.3, 1.1);
+  boxR(9.8, 23.0, 10.42, 24.8, 0.72, 0.76, MAT.wood, {solid:true, plan:'table'});
+  boxR(10.35, 23.3, 10.4, 24.5, 0.76, 1.15, MAT.black, {cast:false});
+  chair(9.35, 23.9, -Math.PI/2);
+  boxR(7.4, 22.78, 9.6, 23.1, 0, 2.0, MAT.wood, {solid:true, plan:'furn'});
+  plantPot(7.1, 24.6, 0.9);
 
   // --- Gourmet: sink, wood-fired grill and pizza oven ---
   const brick = brickMat(0.85, 1.6);
@@ -839,7 +852,7 @@ function buildPlan(){
     s += R(p.r, `fill="${fill}" stroke="#9aa3ab" stroke-width=".7"`);
   });
   // Wheelchair turning circles (1.50 m) in accessible bathrooms
-  [[4.55,14.4],[7.9,17.3],[3.1,21.4]].forEach(([x,z])=>{ s += `<circle cx="${X(x)}" cy="${Y(z)}" r="${0.75*S}" fill="none" stroke="#3d8cc0" stroke-width=".8" stroke-dasharray="3 2"/>`; });
+  [[4.55,14.4],[7.9,17.3],[3.6,21.4]].forEach(([x,z])=>{ s += `<circle cx="${X(x)}" cy="${Y(z)}" r="${0.75*S}" fill="none" stroke="#3d8cc0" stroke-width=".8" stroke-dasharray="3 2"/>`; });
   // Walls & openings
   planWalls.forEach(pw=>{
     const {W:w, a, b, type, sgn} = pw, t = w.t;
@@ -860,7 +873,7 @@ function buildPlan(){
     }
   });
   // Labels
-  const POS = {'Estar / Jantar':[3.75,9.0], 'Cozinha':[8.2,12.3], 'Hall de entrada':[8.9,5.6], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[7.9,25.6], 'Churrasqueira / forno / pia':[9.75,30.0], 'Closet':[4.67,21.2], 'Banho suíte':[3.1,21.5], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
+  const POS = {'Sala de estar':[3.0,8.4], 'Sala de jantar':[3.6,13.0], 'Cozinha':[8.2,12.3], 'Hall de entrada':[8.9,5.6], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[8.5,24.2], 'Churrasqueira / forno / pia':[9.75,30.0], 'Closet':[8.0,25.5], 'Banho suíte':[3.6,21.6], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
   ROOMS.forEach(r=>{
     if(!r.s) return;
     const cx = (r.r[0]+r.r[2])/2, cz = (r.r[1]+r.r[3])/2, small = (r.r[2]-r.r[0]) < 2.6;
@@ -904,7 +917,7 @@ function buildPlan(){
     <h3>Acessibilidade (base NBR 9050)</h3>
     <p>Portas internas de 0,90 m (vão livre ≥ 0,80 m), corredor de 1,30 m, banheiros com giro de 1,50 m para cadeira de rodas (círculos tracejados), box sem degrau, espaço para barras de apoio e lavatório sem gabinete frontal. Entrada principal com porta pivotante de 1,20 m, sem degraus.</p>
     <h3>Observações</h3>
-    <p>Estudo preliminar. Recuos, taxa de ocupação e permeabilidade variam por município — validar com a lei de zoneamento local. Planta desenhada como vista da rua (frente embaixo). Lavabo na transição entre a sala e os quartos; lavanderia abre para o corredor e para o varal no recuo lateral, que leva à churrasqueira. Banheiro social compartilhado pelos quartos 2 e 3. Churrasqueira compacta coberta (sem área de mesas): pia, churrasqueira e forno de pizza aquecido pela mesma lenha, com chaminé única. Projeto legal, estrutural e de instalações precisam de arquiteto/engenheiro com RRT/ART.</p>`;
+    <p>Estudo preliminar. Recuos, taxa de ocupação e permeabilidade variam por município — validar com a lei de zoneamento local. Planta desenhada como vista da rua (frente embaixo). Sala de estar fechada (portas para o hall e para o jantar), isolada dos cheiros da cozinha; jantar integrado à cozinha. Lavabo na transição entre a sala e os quartos; lavanderia abre para o corredor e para o varal no recuo lateral, que leva à churrasqueira. Banheiro social compartilhado pelos quartos 2 e 3. Churrasqueira compacta coberta (sem área de mesas): pia, churrasqueira e forno de pizza aquecido pela mesma lenha, com chaminé única. Projeto legal, estrutural e de instalações precisam de arquiteto/engenheiro com RRT/ART.</p>`;
 
   let z = 1;
   const svgEl = () => document.getElementById('planSvg');

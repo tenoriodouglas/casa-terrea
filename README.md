@@ -15,14 +15,14 @@ Preliminary design of a single-story house on a 12 × 41 m lot, viewable in any 
 Deep links: `#planta`, `#maquete`, `#passeio`, `#tour360`, `#renders`.
 
 ## Program
-- Living/dining, kitchen with island, entrance hall.
+- Closed living room (doors to the hall and dining room, isolated from kitchen smells); dining room integrated with the kitchen (island); entrance hall.
 - Powder room and winter garden between the living area and the bedroom wing.
 - 3 bedrooms (1 master suite) + home office. Bedroom corridor (1.30 m) gives access to the laundry (side door to the clothesline), shared bathroom, bedrooms 2 and 3, master suite and office.
-- Master suite with walk-in closet and accessible bathroom.
+- Master suite (≈ 37 m²): bedroom, 10 m² accessible bathroom and walk-in closet with island, reached through a private hall; compact home office (≈ 9 m²).
 - Compact covered grill: sink, wood-fired grill and pizza oven sharing the same chimney (no dining area), herb planter beside it.
 - Lawn, fruit trees, compost bin and 5 raised vegetable beds (45 m²).
 - Accessibility (NBR 9050 basis): 0.90 m doors, 1.50 m turning circles in bathrooms, curbless showers.
-- Wood floors throughout (wood-look porcelain in wet areas); lawn outside, including a grass driveway. Ceiling height 3.00 m, built area ≈ 196 m².
+- Wood floors throughout (wood-look porcelain in wet areas); lawn outside, including a grass driveway. Ceiling height 3.00 m, built area ≈ 197 m².
 
 ## Realistic walkthrough workflow
 1. **World Labs Marble** (generative 3D worlds): upload a panorama from `renders/pano/` as a *Panorama* input, export the world as `.spz` and commit it to `splats/<room>.spz` (e.g. `splats/sala.spz`). `passeio-realista.html` picks it up automatically.
