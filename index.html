@@ -83,7 +83,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
 
 <div id="hot"></div>
 <div class="panel" id="pTour"><select id="tsel"></select><button class="bShot">📷 Imagem</button><a class="plink" href="passeio-realista.html">Passeio realista ↗</a></div>
-<div id="gallery"><div class="gwrap"><h2>Renders realistas</h2><p class="gsub">Imagens geradas com renderização por traçado de raios (luz solar, reflexos e sombras físicas).</p><div id="grid"></div><p id="gempty">Os renders ainda estão sendo gerados. Volte em alguns minutos.</p></div></div>
+<div id="gallery"><div class="gwrap"><h2>Renders realistas</h2><p class="gsub">Imagens geradas com renderização por traçado de raios (luz solar, reflexos e sombras físicas).</p><p class="gsub" id="gver"></p><div id="grid"></div><p id="gempty">Os renders ainda estão sendo gerados. Volte em alguns minutos.</p></div></div>
 
 <div id="shot"><img alt="Imagem gerada"><p>Celular: toque e segure na imagem para salvar · PC: botão direito › Salvar imagem</p><button id="shotClose">Fechar</button></div>
 
@@ -105,7 +105,7 @@ const WALLS = [
   {ax:'z', c:6.0,  s:5,    e:9.4,  t:.15, ops:[[5.6,6.5,'door',-1]]},
   {ax:'x', c:9.4,  s:1.5,  e:6.0,  t:.15, ops:[[4.9,5.8,'door',-1]]},
   {ax:'z', c:1.5,  s:15.7, e:26.7, t:.2,  ops:[[16.4,18.8,'win'],[20.2,21.4,'winH'],[23.2,25.6,'win']]},
-  {ax:'z', c:10.5, s:5,    e:26.7, t:.2,  ops:[[8.0,9.6,'win'],[11.8,12.7,'door',-1],[14.4,15.3,'door',-1],[16.6,17.8,'winH'],[19.6,21.8,'win'],[23.3,24.7,'win'],[25.5,26.3,'winH']]},
+  {ax:'z', c:10.5, s:5,    e:26.7, t:.2,  ops:[[8.0,9.6,'win'],[14.4,15.3,'door',-1],[16.6,17.8,'winH'],[19.6,21.8,'win'],[23.3,24.7,'win'],[25.5,26.3,'winH']]},
   {ax:'z', c:10.5, s:26.7, e:30.4, t:.2,  ops:[]},
   {ax:'x', c:26.7, s:1.5,  e:10.5, t:.2,  ops:[[1.9,4.7,'slide'],[5.6,7.3,'big']]},
   {ax:'x', c:13.5, s:1.5,  e:5.35, t:.15, ops:[[1.65,3.25,'big']]},
@@ -208,6 +208,7 @@ const roof = new THREE.Group(); scene.add(roof);
 const solids = [];     // collision AABBs [x0,z0,x1,z1]
 const planItems = [];  // furniture footprints for the 2D plan
 const planWalls = [];  // wall segments for the 2D plan
+const planLabels = []; // small appliance labels for the 2D plan [x, z, text]
 
 // ---------- Procedural textures ----------
 function makeTex(w, h, draw){
@@ -563,18 +564,29 @@ function buildFurniture(){
   shrub(1.8, 13.9, 0.28); shrub(3.0, 15.3, 0.3); shrub(1.8, 15.3, 0.25);
   for(let i=0;i<10;i++) mesh(new THREE.SphereGeometry(rnd(0.06,0.12), 8, 6), MAT.stoneTop, rnd(1.6,3.2), 0.03, rnd(13.6,15.6), {cast:false});
 
-  // --- Kitchen ---
-  boxR(9.9, 6.9, 10.48, 11.6, 0, 0.86, MAT.woodLight, {solid:true, plan:'counter'});
-  boxR(9.85, 6.9, 10.48, 11.6, 0.86, 0.9, MAT.counter);
-  boxR(10.15, 6.9, 10.48, 7.9, 1.6, 2.4, MAT.woodLight); boxR(10.15, 9.7, 10.48, 11.6, 1.6, 2.4, MAT.woodLight);
-  boxR(10.0, 8.4, 10.35, 9.1, 0.9, 0.905, MAT.steel, {cast:false});
-  boxR(9.95, 10.3, 10.4, 11.0, 0.9, 0.91, MAT.black, {cast:false});
-  boxR(9.75, 12.75, 10.48, 13.42, 0, 1.9, MAT.steel, {solid:true, plan:'counter'});
+  // --- Kitchen: sink, cooktop with hood, built-in oven tower and fridge ---
+  boxR(9.9, 6.9, 10.48, 11.55, 0, 0.86, MAT.woodLight, {solid:true, plan:'counter'});
+  boxR(9.85, 6.9, 10.48, 11.55, 0.86, 0.9, MAT.counter);
+  boxR(10.15, 6.9, 10.48, 7.9, 1.6, 2.4, MAT.woodLight);
+  boxR(10.0, 8.4, 10.38, 9.1, 0.86, 0.905, MAT.steel, {cast:false});                       // sink
+  mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35, 8), MAT.steel, 10.38, 1.07, 8.75);
+  boxR(10.12, 8.73, 10.38, 8.77, 1.22, 1.25, MAT.steel, {cast:false});                     // faucet spout
+  boxR(9.93, 10.2, 10.43, 10.95, 0.9, 0.912, MAT.black, {cast:false});                     // cooktop
+  [[10.07,10.35],[10.29,10.35],[10.07,10.8],[10.29,10.8]].forEach(([x,z])=>mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.006, 20), MAT.trim, x, 0.915, z, {cast:false}));
+  boxR(9.98, 10.22, 10.48, 10.93, 1.65, 1.75, MAT.steel);                                  // hood
+  boxR(10.2, 10.42, 10.48, 10.73, 1.75, H, MAT.steel);
+  boxR(9.85, 11.6, 10.48, 12.62, 0, 2.4, MAT.woodLight, {solid:true, plan:'counter'});      // oven tower
+  boxR(9.83, 11.7, 9.86, 12.52, 0.75, 1.35, MAT.black, {cast:false});                      // electric oven
+  boxR(9.83, 11.75, 9.86, 12.47, 1.48, 1.82, MAT.black, {cast:false});                     // microwave
+  boxR(9.82, 11.72, 9.84, 12.5, 1.3, 1.32, MAT.steel, {cast:false});
+  boxR(9.75, 12.7, 10.48, 13.42, 0, 1.9, MAT.steel, {solid:true, plan:'counter'});         // fridge
+  boxR(9.72, 12.75, 9.75, 12.79, 0.9, 1.7, MAT.trim, {cast:false});
   boxR(7.3, 8.8, 9.0, 11.0, 0, 0.88, MAT.white, {solid:true, plan:'counter'});
   boxR(7.2, 8.7, 9.1, 11.1, 0.88, 0.92, MAT.counter);
   [9.3, 9.9, 10.5].forEach(z=>{ mesh(new THREE.CylinderGeometry(0.17,0.17,0.05,16), MAT.wood, 6.95, 0.66, z); mesh(new THREE.CylinderGeometry(0.02,0.02,0.64,6), MAT.black, 6.95, 0.32, z); });
   pendant(8.15, 9.4, 1.95); pendant(8.15, 10.4, 1.95);
   plantPot(10.1, 6.2, 0.9);
+  planLabels.push([10.17, 8.75, 'Pia'], [10.17, 10.57, 'Cooktop'], [10.17, 12.1, 'Torre quente'], [10.12, 13.06, 'Geladeira'], [8.15, 9.9, 'Ilha']);
 
   // --- Lavabo (accessible: 1.50 m turning circle) ---
   toilet(4.0, 15.42, Math.PI);
@@ -851,6 +863,8 @@ function buildPlan(){
     const fill = {horta:'#cdb48e', car:'#f1d5d5', bbq:'#d9a08c', glass:'#9fc4d6'}[p.k] || '#ffffff';
     s += R(p.r, `fill="${fill}" stroke="#9aa3ab" stroke-width=".7"`);
   });
+  // Appliance labels
+  planLabels.forEach(([x,z,t])=>{ s += `<text x="${X(x)}" y="${Y(z)}" font-size="5.5" fill="#3b4650" text-anchor="middle" transform="rotate(-90 ${X(x)} ${Y(z)})">${t}</text>`; });
   // Wheelchair turning circles (1.50 m) in accessible bathrooms
   [[4.55,14.4],[7.9,17.3],[3.6,21.4]].forEach(([x,z])=>{ s += `<circle cx="${X(x)}" cy="${Y(z)}" r="${0.75*S}" fill="none" stroke="#3d8cc0" stroke-width=".8" stroke-dasharray="3 2"/>`; });
   // Walls & openings
@@ -928,6 +942,11 @@ function buildPlan(){
 }
 
 function buildGallery(){
+  fetch('renders/version.json', {cache:'no-store'}).then(r=>r.ok ? r.json() : null).then(v=>{
+    if(!v) return;
+    const d = new Date(v.generated);
+    document.getElementById('gver').textContent = `Versão dos renders: ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}. Novas versões substituem esta só quando ficam completas.`;
+  }).catch(()=>{});
   const grid = document.getElementById('grid');
   grid.innerHTML = RENDERS.map(([src, cap])=>`<figure><img loading="lazy" src="${src}" alt="${cap}"><figcaption>${cap}</figcaption></figure>`).join('');
   grid.querySelectorAll('figure').forEach(f=>{
@@ -1034,7 +1053,7 @@ skyBackground(); buildLights(); buildGrounds(); buildFloors();
 WALLS.forEach(buildWall);
 buildRoof(); buildFurniture(); buildPlan(); buildGallery();
 scene.traverse(o=>{ if(o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.55; });
-window.HOUSE = {scene, world, roof};
+window.HOUSE = {scene, world, roof, PANOS, RENDERS};
 resize();
 const start = ({planta:'plan', maquete:'orbit', passeio:'walk', tour360:'tour', renders:'renders'})[location.hash.slice(1)] || 'orbit';
 setMode(start);

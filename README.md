@@ -33,3 +33,10 @@ Deep links: `#planta`, `#maquete`, `#passeio`, `#tour360`, `#renders`.
 - `passeio-realista.html`: splat viewer (vendored Three.js 0.180 + Spark 2.4 in `vendor/`).
 - `model/casa.glb`: 3D model export for external renderers.
 - `renders/`: ray-traced stills; `renders/pano/`: 360° panoramas.
+
+## Automatic rendering
+`tools/render/build.py` exports the model from `index.html`, renders every still and panorama with Blender Cycles (`bpy`) into a staging folder, and only then replaces `renders/` and `model/casa.glb` and writes `renders/version.json`. The site therefore always shows the latest *complete* render set.
+
+The GitHub Actions workflow `.github/workflows/render.yml` runs this on every change to `index.html` (or manually from the Actions tab), commits the new set and triggers a Pages rebuild. A newer change cancels a render still in progress.
+
+Local run: `pip install bpy playwright pillow && python -m playwright install chromium && python tools/render/build.py`.
