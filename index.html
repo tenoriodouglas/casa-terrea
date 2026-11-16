@@ -15,7 +15,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
 #top button.on{background:var(--acc);color:#fff}
 .panel{position:fixed;right:10px;bottom:10px;background:var(--panel);border-radius:12px;padding:8px;box-shadow:0 2px 12px rgba(0,0,0,.15);display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 20px);justify-content:flex-end;z-index:4}
 .panel button,.panel select{border:1px solid #d6d9dc;background:#fff;border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer;color:var(--ink)}
-.panel a.plink{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:7px 10px;font-size:13px;text-decoration:none}
 .panel button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 #help{position:fixed;left:10px;top:62px;background:var(--panel);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--muted);max-width:260px;z-index:4;line-height:1.4}
 #room{position:fixed;left:50%;top:62px;transform:translateX(-50%);background:rgba(29,35,41,.78);color:#fff;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600;z-index:4;pointer-events:none}
@@ -36,13 +35,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
 #shot img{max-width:100%;max-height:78vh;border-radius:8px;box-shadow:0 4px 30px rgba(0,0,0,.5)}
 #shot p{color:#dfe3e6;font-size:13px;text-align:center;margin:0}
 #shot button{border:0;background:#fff;border-radius:8px;padding:8px 18px;font-size:14px;font-weight:600;cursor:pointer}
-#gallery{position:fixed;inset:0;overflow:auto;background:#111417;padding:64px 12px 30px;display:none;z-index:3;color:#e9ecef}
-.gwrap{max-width:1200px;margin:0 auto}.gwrap h2{margin:0 0 4px;font-size:18px}.gsub{color:#9aa4ad;font-size:13px;margin:0 0 14px}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
-#grid figure{margin:0;background:#1b2024;border-radius:10px;overflow:hidden;cursor:zoom-in}#grid img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}#grid figcaption{padding:8px 10px;font-size:13px;color:#cfd5da}
-.hs{position:fixed;transform:translate(-50%,-50%);z-index:4;border:2px solid #fff;background:rgba(20,24,28,.55);color:#fff;border-radius:20px;padding:6px 12px 6px 10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.hs::before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;background:#fff;margin-right:7px;vertical-align:-1px;box-shadow:0 0 0 3px rgba(255,255,255,.35)}
-#gempty{color:#9aa4ad;font-size:14px;padding:30px 0;display:none}
 #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--muted);z-index:20;background:var(--bg)}
 @media (max-width:600px){#help{display:none}#top{top:6px}#top button{padding:7px 8px;font-size:12px}#room,#help{top:54px}}
 #top::-webkit-scrollbar{display:none}
@@ -55,8 +47,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
   <button data-m="plan">Planta</button>
   <button data-m="orbit">Maquete 3D</button>
   <button data-m="walk">Passeio 3D</button>
-  <button data-m="tour">Tour 360°</button>
-  <button data-m="renders">Renders</button>
 </div>
 <div id="room"></div>
 <div id="help"></div>
@@ -73,17 +63,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dfe9f0;font-family:sy
 <div class="panel" id="pWalk">
   <select id="goto"></select>
   <button class="bShot">📷 Imagem</button>
-  <a class="plink" href="passeio-realista.html">Passeio realista ↗</a>
 </div>
 
 <div id="plan"><div class="wrap">
   <div><div class="zoom"><button id="zIn">+</button><button id="zOut">−</button></div><div id="svgbox"></div></div>
   <div id="info"></div>
 </div></div>
-
-<div id="hot"></div>
-<div class="panel" id="pTour"><select id="tsel"></select><button class="bShot">📷 Imagem</button><a class="plink" href="passeio-realista.html">Passeio realista ↗</a></div>
-<div id="gallery"><div class="gwrap"><h2>Renders realistas</h2><p class="gsub">Imagens geradas com renderização por traçado de raios (luz solar, reflexos e sombras físicas).</p><p class="gsub" id="gver"></p><div id="grid"></div><p id="gempty">Os renders ainda estão sendo gerados. Volte em alguns minutos.</p></div></div>
 
 <div id="shot"><img alt="Imagem gerada"><p>Celular: toque e segure na imagem para salvar · PC: botão direito › Salvar imagem</p><button id="shotClose">Fechar</button></div>
 
@@ -107,15 +92,16 @@ const WALLS = [
   {ax:'x', c:7.4,  s:6.0,  e:10.5, t:.15, ops:[[6.05,6.95,'open'],[9.2,10.0,'door',-1]]},
   {ax:'z', c:8.4,  s:5,    e:7.4,  t:.15, ops:[]},
   {ax:'z', c:1.5,  s:15.7, e:26.7, t:.2,  ops:[[16.4,18.8,'win'],[20.2,21.4,'winH'],[23.2,25.6,'win']]},
-  {ax:'z', c:10.5, s:5,    e:26.7, t:.2,  ops:[[8.0,9.6,'win'],[14.4,15.3,'door',-1],[16.6,17.8,'winH'],[19.6,21.8,'win'],[23.3,24.7,'win'],[25.5,26.3,'winH']]},
-  {ax:'z', c:10.5, s:26.7, e:30.4, t:.2,  ops:[]},
-  {ax:'x', c:26.7, s:1.5,  e:10.5, t:.2,  ops:[[1.9,4.7,'slide'],[5.6,7.3,'big']]},
+  {ax:'z', c:10.5, s:5,    e:27.7, t:.2,  ops:[[8.0,9.6,'win'],[14.4,15.3,'door',-1],[16.6,17.8,'winH'],[19.6,21.8,'win'],[23.3,24.7,'win'],[26.3,27.3,'winH']]},
+  {ax:'z', c:10.5, s:27.7, e:31.4, t:.2,  ops:[]},
+  {ax:'x', c:26.7, s:1.5,  e:6.65, t:.2,  ops:[[1.9,4.7,'slide']]},
+  {ax:'x', c:27.7, s:6.65, e:10.5, t:.2,  ops:[[7.4,8.6,'winH']]},
   {ax:'x', c:13.5, s:1.5,  e:5.35, t:.15, ops:[[1.65,3.25,'big']]},
   {ax:'x', c:13.5, s:6.65, e:10.5, t:.15, ops:[]},
   {ax:'z', c:3.35, s:13.5, e:15.7, t:.15, ops:[[14.2,15.0,'winH']]},
   {ax:'x', c:15.7, s:1.5,  e:5.35, t:.15, ops:[]},
   {ax:'z', c:5.35, s:13.5, e:26.7, t:.15, ops:[[13.9,14.8,'door',-1],[18.5,19.4,'door',-1],[25.6,26.5,'open']]},
-  {ax:'z', c:6.65, s:13.5, e:26.7, t:.15, ops:[[14.3,15.2,'door',1],[16.3,17.2,'door',1],[19.0,19.9,'door',1],[22.9,23.8,'door',1],[25.1,26.55,'open']]},
+  {ax:'z', c:6.65, s:13.5, e:27.7, t:.15, ops:[[14.3,15.2,'door',1],[16.3,17.2,'door',1],[19.0,19.9,'door',1],[22.9,23.8,'door',1],[25.1,26.55,'open']]},
   {ax:'x', c:22.7, s:6.65, e:10.5, t:.15, ops:[]},
   {ax:'x', c:24.0, s:5.35, e:6.65, t:.12, ops:[[5.5,6.4,'door',1]]},
   {ax:'x', c:25.0, s:6.65, e:10.5, t:.12, ops:[]},
@@ -144,9 +130,9 @@ const ROOMS = [
   {n:'Banho suíte', s:'Banho suíte', r:[1.5,19.7,5.35,22.3], f:'wood', c:B},
   {n:'Suíte master', s:'Suíte master', r:[1.5,22.3,5.35,26.7], f:'wood', c:Q},
   {n:'Hall da suíte', s:'', r:[5.35,24.0,6.65,26.7], f:'wood', c:C},
-  {n:'Closet', s:'Closet', r:[6.65,25.0,10.5,26.7], f:'wood', c:C},
+  {n:'Closet', s:'Closet', r:[6.65,25.0,10.5,27.7], f:'wood', c:C},
   {n:'Escritório', s:'Escritório', r:[6.65,22.7,10.5,25.0], f:'wood', c:'#efeadf'},
-  {n:'Churrasqueira / forno / pia', s:'Churrasq.', r:[9.0,26.7,10.5,30.4], f:'wood', c:'#ede6d8'},
+  {n:'Churrasqueira / forno / pia', s:'Churrasq.', r:[9.0,27.7,10.5,31.4], f:'wood', c:'#ede6d8'},
 ];
 const area = r => (r.r[2]-r.r[0])*(r.r[3]-r.r[1]);
 
@@ -166,36 +152,8 @@ const SPOTS = [
   ['Suíte master', 2.4, 23.0, 5, 24.3],
   ['Closet da suíte', 6.0, 25.7, 9.5, 26.0],
   ['Escritório', 7.2, 23.4, 10, 24],
-  ['Churrasqueira', 8.0, 29.9, 10, 28],
+  ['Churrasqueira', 8.0, 30.9, 10, 29],
   ['Quintal / horta', 6.0, 32, 6, 39],
-];
-
-// 360 tour: ray-traced equirectangular panoramas; links = neighbours reachable by hotspot
-const PANOS = {
-  rua:        {n:'Frente da casa', x:7.0, z:-1.5, links:['genkan']},
-  genkan:     {n:'Genkan (entrada)', x:7.0, z:6.0, links:['rua','sala','cozinha']},
-  sala:       {n:'Sala de estar', x:3.6, z:8.4, links:['genkan','cozinha']},
-  jantar:     {n:'Sala de jantar', x:5.3, z:11.2, links:['sala','cozinha','corredor']},
-  cozinha:    {n:'Cozinha', x:8.0, z:12.3, links:['jantar','corredor','genkan','sala']},
-  corredor:   {n:'Corredor dos quartos', x:6.0, z:15.5, links:['jantar','lavanderia','banho','quarto2','quarto3','closet','escritorio']},
-  lavanderia: {n:'Lavanderia', x:8.4, z:15.0, links:['corredor']},
-  banho:      {n:'Banheiro social', x:8.0, z:17.3, links:['corredor']},
-  quarto2:    {n:'Quarto 2', x:8.0, z:19.9, links:['corredor']},
-  quarto3:    {n:'Quarto 3', x:3.9, z:18.5, links:['corredor']},
-  master:     {n:'Suíte master', x:2.5, z:24.0, links:['closet','quintal']},
-  closet:     {n:'Closet da suíte', x:7.6, z:25.5, links:['master','corredor']},
-  escritorio: {n:'Escritório', x:7.8, z:23.9, links:['corredor']},
-  gourmet:    {n:'Churrasqueira', x:8.3, z:28.5, links:['quintal']},
-  quintal:    {n:'Quintal', x:5.0, z:32.0, links:['gourmet','master','horta']},
-  horta:      {n:'Horta', x:6.0, z:36.5, links:['quintal']},
-};
-const PANO_YAW = -Math.PI/2;  // aligns the panorama image with world axes
-
-// Photorealistic renders shown in the gallery tab
-const RENDERS = [
-  ['renders/fachada.jpg', 'Fachada'], ['renders/genkan.jpg', 'Genkan (entrada)'], ['renders/aerea.jpg', 'Vista aérea'], ['renders/fundos.jpg', 'Quintal e horta'],
-  ['renders/sala.jpg', 'Sala de estar'], ['renders/jantar.jpg', 'Jantar integrado à cozinha'], ['renders/cozinha.jpg', 'Cozinha'], ['renders/gourmet.jpg', 'Churrasqueira com forno de pizza e pia'],
-  ['renders/banho.jpg', 'Banheiro acessível'], ['renders/master.jpg', 'Suíte master'], ['renders/closet.jpg', 'Closet da suíte'], ['renders/escritorio.jpg', 'Escritório'],
 ];
 
 // ================= Renderer / scene =================
@@ -323,7 +281,9 @@ const MAT = {
 for(const k in MAT) MAT[k].name = k;
 
 // ---------- Geometry helpers ----------
+let DZ = 0;  // z offset applied by boxR/mesh (places the grill block behind the closet)
 function boxR(x0, z0, x1, z1, y0, y1, mat, o={}){
+  z0 += DZ; z1 += DZ;
   const w = x1-x0, d = z1-z0, h = y1-y0;
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
   m.position.set((x0+x1)/2, (y0+y1)/2, (z0+z1)/2);
@@ -334,6 +294,7 @@ function boxR(x0, z0, x1, z1, y0, y1, mat, o={}){
   return m;
 }
 function mesh(geo, mat, x, y, z, o={}){
+  z += DZ;
   const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z);
   m.castShadow = o.cast !== false; m.receiveShadow = true;
   (o.group || world).add(m); return m;
@@ -352,7 +313,7 @@ function buildGrounds(){
   for(const x of [6.8, 8.4, 9.5, 11.1]) floor(x, 0, x+0.6, 5, 0.006, texMat('concrete', 0.6, 5, 2.5)); // grass driveway with wheel strips
   floor(1.5, 26.7, 4.8, 28.2, 0.03, texMat('wood', 3.3, 1.5, 1.6));         // master deck
   for(let z=5.6; z<26; z+=0.9) if(z < 13.2 || z > 16) boxR(0.45, z, 1.05, z+0.55, 0, 0.03, MAT.stoneTop, {cast:false}); // left pavers
-  for(let z=5.4; z<26.4; z+=0.8) boxR(10.95, z, 11.6, z+0.5, 0, 0.03, MAT.stoneTop, {cast:false});                      // path to gourmet
+  for(let z=5.4; z<27.4; z+=0.8) boxR(10.95, z, 11.6, z+0.5, 0, 0.03, MAT.stoneTop, {cast:false});                      // path to gourmet
   for(let z=0.4; z<4.6; z+=0.8) boxR(6.4, z, 7.4, z+0.5, 0, 0.012, MAT.stoneTop, {cast:false});                           // entrance path
   for(let z=31.2; z<33.6; z+=0.8) boxR(5.6, z, 6.4, z+0.5, 0, 0.03, MAT.stoneTop, {cast:false});                         // path to vegetable garden
 
@@ -453,20 +414,22 @@ function buildRoof(){
   boxR(1.4, 4.9, 10.6, 13.5, H, H+0.2, MAT.slab, g);
   boxR(3.35, 13.5, 10.6, 15.7, H, H+0.2, MAT.slab, g);
   boxR(1.4, 15.7, 10.6, 26.8, H, H+0.2, MAT.slab, g);
-  boxR(8.9, 26.8, 10.6, 30.5, H, H+0.2, MAT.slab, g);                         // grill cover
+  boxR(8.9, 27.8, 10.6, 31.5, H, H+0.2, MAT.slab, g);                         // grill cover
   const ph = H+0.9;
   boxR(1.35, 4.85, 10.65, 5.0, H, ph, MAT.wall, g);
-  boxR(10.5, 4.85, 10.65, 26.85, H, ph, MAT.wall, g);
+  boxR(10.5, 4.85, 10.65, 27.85, H, ph, MAT.wall, g);
   boxR(1.35, 4.85, 1.5, 26.85, H, ph, MAT.wall, g);
-  boxR(1.35, 26.7, 10.65, 26.85, H, ph, MAT.wall, g);
-  boxR(8.85, 30.35, 10.65, 30.55, H-0.25, H+0.3, MAT.wall, g);
-  boxR(8.85, 26.85, 9.0, 30.55, H-0.25, H+0.3, MAT.wall, g);
-  boxR(9.95, 28.35, 10.45, 28.85, H, H+1.6, brickMat(0.5, 1.6), g);          // shared chimney
+  boxR(1.35, 26.7, 6.7, 26.85, H, ph, MAT.wall, g);
+  boxR(6.55, 26.7, 6.7, 27.85, H, ph, MAT.wall, g);
+  boxR(6.55, 27.7, 10.65, 27.85, H, ph, MAT.wall, g);
+  boxR(8.85, 31.35, 10.65, 31.55, H-0.25, H+0.3, MAT.wall, g);
+  boxR(8.85, 27.85, 9.0, 31.55, H-0.25, H+0.3, MAT.wall, g);
+  boxR(9.95, 29.35, 10.45, 29.85, H, H+1.6, brickMat(0.5, 1.6), g);          // shared chimney
   boxR(6.0, 3.5, 8.6, 4.85, H-0.15, H+0.05, MAT.slab);                        // entrance canopy
   for(let x=7.55; x<10.45; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);  // wood slats
   for(let x=6.05; x<6.25; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);
   [[3.75,7.2],[3.75,11.3],[7.2,6.2],[9.45,6.2],[6.5,8.4],[8.7,8.6],[8.7,12.0],[6,15],[6,18.5],[6,21.5],[4.35,14.6],[8.5,14.7],[8.5,17.3],
-   [8.5,20.7],[3.4,17.7],[2.75,21.0],[4.3,21.0],[3.4,24.5],[8.5,23.8],[8.5,25.9],[6,25.3],[9.45,28.5]].forEach(([x,z])=>{
+   [8.5,20.7],[3.4,17.7],[2.75,21.0],[4.3,21.0],[3.4,24.5],[8.5,23.8],[8.5,26.4],[6,25.3],[9.45,29.5]].forEach(([x,z])=>{
     mesh(new THREE.CylinderGeometry(0.14,0.14,0.02,20), MAT.lamp, x, H-0.01, z, {group:roof, cast:false});
   });
 }
@@ -644,9 +607,10 @@ function buildFurniture(){
   toilet(5.05, 20.4, -Math.PI/2);
   vanity(3.0, 19.78, 4.5, 20.25, [3.0, 19.76, 4.5, 19.78]);
   boxR(5.31, 20.85, 5.35, 21.6, 0.75, 0.79, MAT.steel, {cast:false});                     // grab bar
-  wardrobe(6.72, 26.1, 10.42, 26.62);
-  wardrobe(9.85, 25.08, 10.42, 26.1);
-  boxR(7.6, 25.45, 8.8, 25.85, 0, 0.9, MAT.white, {solid:true, plan:'furn'});              // closet island
+  wardrobe(6.95, 27.05, 10.42, 27.62);
+  wardrobe(9.85, 25.08, 10.42, 27.05);
+  wardrobe(6.72, 26.62, 6.95, 27.62);
+  boxR(7.3, 25.75, 8.5, 26.3, 0, 0.9, MAT.white, {solid:true, plan:'furn'});               // closet island
   boxR(5.42, 24.1, 5.6, 25.4, 1.0, 2.0, MAT.mirror, {cast:false});                         // dressing mirror
 
   // --- Home office ---
@@ -656,7 +620,8 @@ function buildFurniture(){
   boxR(7.4, 22.78, 9.6, 23.1, 0, 2.0, MAT.wood, {solid:true, plan:'furn'});
   plantPot(7.1, 24.6, 0.9);
 
-  // --- Gourmet: sink, wood-fired grill and pizza oven ---
+  // --- Gourmet: sink, wood-fired grill and pizza oven (shifted 1 m behind the enlarged closet) ---
+  DZ = 1.0;
   const brick = brickMat(0.85, 1.6);
   boxR(9.75, 26.8, 10.42, 28.0, 0, 0.88, MAT.wood, {solid:true, plan:'counter'});
   boxR(9.7, 26.8, 10.42, 28.0, 0.88, 0.92, MAT.stoneTop);
@@ -678,6 +643,7 @@ function buildFurniture(){
   // --- Herb planter next to the grill ---
   boxR(7.8, 30.6, 9.6, 31.05, 0, 0.7, MAT.wood, {solid:true, plan:'horta'});
   for(let x=7.95; x<9.5; x+=0.22) mesh(new THREE.SphereGeometry(0.1, 8, 6), MAT.leaf3, x, 0.78, 30.82, {cast:false});
+  DZ = 0;
 
   // --- Vegetable garden (horta): 5 raised beds ---
   [33.8, 35.3, 36.8, 38.3, 39.8].forEach((z, i)=>{
@@ -761,7 +727,7 @@ function whereAmI(x, z){
   if(z < 0) return 'Calçada';
   if(z < 5) return x > 6.5 ? 'Garagem' : 'Jardim frontal';
   if(x < 1.5 && z < 26.7) return 'Jardim lateral';
-  if(x > 10.5 && z < 30.4) return 'Passagem lateral / varal';
+  if(x > 10.5 && z < 31.4) return 'Passagem lateral / varal';
   if(z > 33.4) return 'Horta';
   return 'Quintal';
 }
@@ -790,15 +756,6 @@ canvas.addEventListener('pointermove', e=>{
       const s = p.type === 'mouse' ? 0.0032 : 0.0055;
       walk.yaw += dx*s; walk.pitch = clamp(walk.pitch + dy*s, -1.2, 1.2);
     }
-  } else if(mode === 'tour'){
-    if(ptrs.size === 1){
-      const k = tourCam.fov / innerHeight * Math.PI / 180;
-      tour.lon += dx*k; tour.lat = clamp(tour.lat + dy*k, -1.45, 1.45);
-    } else if(ptrs.size === 2){
-      const [a, b] = [...ptrs.values()], d = Math.hypot(a.x-b.x, a.y-b.y);
-      if(pinch){ tourCam.fov = clamp(tourCam.fov*pinch.d/d, 35, 95); tourCam.updateProjectionMatrix(); }
-      pinch = {d};
-    }
   } else if(mode === 'orbit'){
     if(ptrs.size === 1){
       if(p.btn === 2 || e.shiftKey) pan(dx, dy);
@@ -817,7 +774,7 @@ function endPtr(e){
 }
 canvas.addEventListener('pointerup', endPtr);
 canvas.addEventListener('pointercancel', endPtr);
-canvas.addEventListener('wheel', e=>{ e.preventDefault(); if(mode==='tour'){ tourCam.fov = clamp(tourCam.fov*Math.exp(e.deltaY*0.001), 35, 95); tourCam.updateProjectionMatrix(); } if(mode==='orbit'){ orbitGoal = null; orbit.r = clamp(orbit.r*Math.exp(e.deltaY*0.0012), 4, 120); } }, {passive:false});
+canvas.addEventListener('wheel', e=>{ e.preventDefault(); if(mode==='orbit'){ orbitGoal = null; orbit.r = clamp(orbit.r*Math.exp(e.deltaY*0.0012), 4, 120); } }, {passive:false});
 function knob(x, y){ const k = document.getElementById('knob'); k.style.transform = `translate(${x}px,${y}px)`; }
 addEventListener('keydown', e=>{ keys[e.code] = true; if(mode==='walk' && e.code.startsWith('Arrow')) e.preventDefault(); });
 addEventListener('keyup', e=>{ keys[e.code] = false; });
@@ -828,25 +785,19 @@ let roofOn = false;
 const help = document.getElementById('help'), roomEl = document.getElementById('room');
 const HELP = {
   orbit: '<b>Maquete</b><br>Arrastar: girar · Roda/pinça: zoom<br>Botão direito / 2 dedos: mover',
-  tour: '<b>Tour 360°</b><br>Arraste para olhar · pinça/roda: zoom<br>Toque nos marcadores para mudar de ambiente',
   walk: '<b>Passeio</b><br>PC: W A S D anda · arraste o mouse para olhar · Shift corre<br>Celular: lado esquerdo = joystick · lado direito = olhar',
 };
 function setMode(m){
   mode = m;
   document.querySelectorAll('#top button').forEach(b=>b.classList.toggle('on', b.dataset.m === m));
   document.getElementById('plan').style.display = m === 'plan' ? 'block' : 'none';
-  document.getElementById('gallery').style.display = m === 'renders' ? 'block' : 'none';
   document.getElementById('pOrbit').style.display = m === 'orbit' ? 'flex' : 'none';
   document.getElementById('pWalk').style.display = m === 'walk' ? 'flex' : 'none';
-  document.getElementById('pTour').style.display = m === 'tour' ? 'flex' : 'none';
-  document.getElementById('hot').style.display = m === 'tour' ? 'block' : 'none';
-  if(m === 'tour' && !tour.cur) goPano('rua');
-  help.style.display = (m === 'plan' || m === 'renders') ? 'none' : ''; if(m === 'tour') help.innerHTML = HELP.tour; help.innerHTML = HELP[m] || '';
-  roomEl.style.display = (m === 'walk' || m === 'tour') ? 'block' : 'none';
+  help.style.display = m === 'plan' ? 'none' : ''; help.innerHTML = HELP[m] || '';
+  roomEl.style.display = m === 'walk' ? 'block' : 'none';
   roof.visible = m === 'walk' ? true : roofOn;
   camera.fov = m === 'walk' ? 72 : 50; camera.updateProjectionMatrix();
-  if(m === 'tour'){ tourCam.fov = 75; tourCam.updateProjectionMatrix(); }
-  try{ history.replaceState(null, '', '#' + ({plan:'planta', orbit:'maquete', walk:'passeio', tour:'tour360', renders:'renders'})[m]); }catch(_){}
+  try{ history.replaceState(null, '', '#' + ({plan:'planta', orbit:'maquete', walk:'passeio'})[m]); }catch(_){}
 }
 document.querySelectorAll('#top button').forEach(b=>b.onclick = ()=>setMode(b.dataset.m));
 document.querySelectorAll('#pOrbit [data-v]').forEach(b=>b.onclick = ()=>{ orbitGoal = Object.assign({}, VIEWS[b.dataset.v]); });
@@ -858,7 +809,7 @@ sel.onchange = ()=>{
   walk.x = s[1]; walk.z = s[2]; walk.yaw = Math.atan2(-(s[3]-s[1]), -(s[4]-s[2])); walk.pitch = -0.05; sel.value = '';
 };
 document.querySelectorAll('.bShot').forEach(b=>b.onclick = ()=>{
-  if(mode === 'tour') renderer.render(tourScene, tourCam); else renderer.render(scene, camera);
+  renderer.render(scene, camera);
   const img = document.querySelector('#shot img'); img.src = renderer.domElement.toDataURL('image/jpeg', 0.92);
   document.getElementById('shot').style.display = 'flex';
 });
@@ -911,7 +862,7 @@ function buildPlan(){
     }
   });
   // Labels
-  const POS = {'Sala de estar':[3.0,8.4], 'Sala de jantar':[3.6,13.0], 'Cozinha':[8.8,12.4], 'Genkan (entrada)':[7.2,6.9], 'Despensa':[9.45,6.4], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[8.5,24.2], 'Churrasqueira / forno / pia':[9.75,30.0], 'Closet':[8.0,25.5], 'Banho suíte':[3.6,21.6], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
+  const POS = {'Sala de estar':[3.0,8.4], 'Sala de jantar':[3.6,13.0], 'Cozinha':[8.8,12.4], 'Genkan (entrada)':[7.2,6.9], 'Despensa':[9.45,6.4], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[8.5,24.2], 'Churrasqueira / forno / pia':[9.75,31.0], 'Closet':[9.2,25.45], 'Banho suíte':[3.6,21.6], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
   ROOMS.forEach(r=>{
     if(!r.s) return;
     const cx = (r.r[0]+r.r[2])/2, cz = (r.r[1]+r.r[3])/2, small = (r.r[2]-r.r[0]) < 2.6;
@@ -922,7 +873,7 @@ function buildPlan(){
   });
   const lbl = (x, z, t, fs=9, c='#4b5a43') => `<text x="${X(x)}" y="${Y(z)}" text-anchor="middle" font-size="${fs}" fill="${c}" font-weight="600">${t}</text>`;
   s += lbl(9.25, 2.4, 'Garagem 2 vagas (gramada)', 8, '#555') + lbl(3.2, 4.2, 'Jardim', 9) + lbl(4.0, 32.4, 'Gramado', 9) + lbl(6, 33.25, 'HORTA · 5 canteiros elevados', 9, '#6b4b25');
-  s += lbl(3.15, 27.6, 'Deck', 7.5, '#6b5030') + lbl(8.7, 31.35, 'Temperos', 7, '#4b5a43') + lbl(0.55, 33.95, 'Compostagem', 6, '#6b5030');
+  s += lbl(3.15, 27.6, 'Deck', 7.5, '#6b5030') + lbl(8.7, 32.35, 'Temperos', 7, '#4b5a43') + lbl(0.55, 33.95, 'Compostagem', 6, '#6b5030');
   const vt = (x, z, t) => `<text x="${X(x)}" y="${Y(z)}" font-size="8" fill="#4b5a43" text-anchor="middle" transform="rotate(-90 ${X(x)} ${Y(z)})">${t}</text>`;
   s += vt(0.75, 20, 'Jardim lateral · recuo 1,50 m') + vt(11.25, 22.5, 'Passagem lateral → churrasqueira') + vt(11.85, 16.5, 'Varal');
   // Dimensions
@@ -931,7 +882,7 @@ function buildPlan(){
   s += dimH(0, 12, M-18, '12,00 m');
   s += dimH(0, 1.5, Y(0)+18, '1,50') + dimH(1.5, 10.5, Y(0)+18, '9,00 m (casa)') + dimH(10.5, 12, Y(0)+18, '1,50');
   s += dimV(0, 41, X(0)+26, '41,00 m');
-  s += dimV(0, 5, X(12)-14, '5,00') + dimV(5, 26.7, X(12)-14, '21,70 m (casa)') + dimV(26.7, 41, X(12)-14, '14,30 (quintal)');
+  s += dimV(0, 5, X(12)-14, '5,00') + dimV(5, 27.7, X(12)-14, '22,70 m (casa)') + dimV(27.7, 41, X(12)-14, '13,30 (quintal)');
   s += `<text x="${X(6)}" y="${Y(0)+40}" font-size="11" text-anchor="middle" font-weight="700" letter-spacing="3" fill="#444">RUA</text>`;
   s += `</svg>`;
   document.getElementById('svgbox').innerHTML = s;
@@ -950,7 +901,7 @@ function buildPlan(){
       <tr><td>Taxa de ocupação</td><td>${(built/lot*100).toFixed(0)}%</td></tr>
       <tr><td>Área verde/permeável (jardins, quintal, horta)</td><td>≈ ${fmt(green)} m² (${(100*green/lot).toFixed(0)}%)</td></tr>
       <tr><td>Horta: 5 canteiros elevados 10 × 0,9 m</td><td>45 m²</td></tr>
-      <tr><td>Recuos: frontal / laterais / fundos</td><td>5,00 / 1,50 / 14,30 m</td></tr>
+      <tr><td>Recuos: frontal / laterais / fundos</td><td>5,00 / 1,50 / 13,30 m</td></tr>
     </table>
     <h3>Acessibilidade (base NBR 9050)</h3>
     <p>Portas internas de 0,90 m (vão livre ≥ 0,80 m), corredor de 1,30 m, banheiros com giro de 1,50 m para cadeira de rodas (círculos tracejados), box sem degrau, espaço para barras de apoio e lavatório sem gabinete frontal. Entrada principal com porta pivotante de 1,20 m, sem degraus.</p>
@@ -965,79 +916,10 @@ function buildPlan(){
   fit();
 }
 
-function buildGallery(){
-  fetch('renders/version.json', {cache:'no-store'}).then(r=>r.ok ? r.json() : null).then(v=>{
-    if(!v) return;
-    const d = new Date(v.generated);
-    document.getElementById('gver').textContent = `Versão dos renders: ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}. Novas versões substituem esta só quando ficam completas.`;
-  }).catch(()=>{});
-  const grid = document.getElementById('grid');
-  grid.innerHTML = RENDERS.map(([src, cap])=>`<figure><img loading="lazy" src="${src}" alt="${cap}"><figcaption>${cap}</figcaption></figure>`).join('');
-  grid.querySelectorAll('figure').forEach(f=>{
-    const img = f.querySelector('img');
-    img.onerror = ()=>{ f.remove(); if(!grid.children.length) document.getElementById('gempty').style.display = 'block'; };
-    f.onclick = ()=>{ document.querySelector('#shot img').src = img.src; document.getElementById('shot').style.display = 'flex'; };
-  });
-}
-
-// ================= 360 tour =================
-const tourScene = new THREE.Scene();
-const tourCam = new THREE.PerspectiveCamera(75, 1, 0.1, 200);
-const tourMat = new THREE.MeshBasicMaterial({toneMapped:false});
-const tourSphere = new THREE.Mesh(new THREE.SphereGeometry(50, 96, 48), tourMat);
-tourSphere.geometry.scale(-1, 1, 1);
-tourSphere.rotation.y = PANO_YAW;
-tourScene.add(tourSphere);
-const tour = {cur:null, lon:0, lat:0, cache:{}, hs:[]};
-const loader = new THREE.TextureLoader();
-function panoTex(id, cb, onErr){
-  if(tour.cache[id]) return cb(tour.cache[id]);
-  loader.load(`renders/pano/${id}.jpg`, t=>{ t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; tour.cache[id] = t; cb(t); }, undefined, onErr);
-}
-// Yaw that looks from pano a toward point (x,z); camera forward = (-sin yaw, -cos yaw)
-const yawTo = (a, x, z) => Math.atan2(-(x-a.x), -(z-a.z));
-function goPano(id){
-  const p = PANOS[id], prev = tour.cur && PANOS[tour.cur];
-  panoTex(id, t=>{
-    tourMat.map = t; tourMat.needsUpdate = true;
-    if(prev) tour.lon = yawTo(prev, p.x, p.z);          // keep walking direction
-    else tour.lon = yawTo(p, PANOS[p.links[0]].x, PANOS[p.links[0]].z);
-    tour.lat = 0; tour.cur = id;
-    roomEl.style.display = 'block'; roomEl.textContent = p.n;
-    tsel.value = id; buildHotspots();
-  }, ()=>{ roomEl.style.display = 'block'; roomEl.textContent = 'Panorama indisponível no momento'; });
-  // Prefetch neighbours
-  p.links.forEach(l=>panoTex(l, ()=>{}));
-}
-function buildHotspots(){
-  const box = document.getElementById('hot'); box.innerHTML = ''; tour.hs = [];
-  const a = PANOS[tour.cur];
-  a.links.forEach(id=>{
-    const b = PANOS[id], d = Math.hypot(b.x-a.x, b.z-a.z);
-    const dir = new THREE.Vector3(b.x-a.x, -Math.min(1.0, 1.55/Math.max(d,1)), b.z-a.z).normalize();
-    const el = document.createElement('button'); el.className = 'hs'; el.textContent = b.n;
-    el.onclick = ()=>goPano(id); box.appendChild(el); tour.hs.push({el, dir});
-  });
-}
-function updateTour(){
-  tourCam.rotation.set(tour.lat, tour.lon, 0, 'YXZ');
-  tourCam.updateMatrixWorld();
-  const v = new THREE.Vector3();
-  tour.hs.forEach(h=>{
-    v.copy(h.dir).multiplyScalar(10).project(tourCam);
-    const vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1;
-    h.el.style.display = vis ? 'block' : 'none';
-    if(vis){ h.el.style.left = ((v.x+1)/2*innerWidth)+'px'; h.el.style.top = ((1-v.y)/2*innerHeight)+'px'; }
-  });
-}
-const tsel = document.getElementById('tsel');
-tsel.innerHTML = Object.entries(PANOS).map(([id,p])=>`<option value="${id}">${p.n}</option>`).join('');
-tsel.onchange = ()=>{ tour.cur = null; goPano(tsel.value); };
-
 // ================= Loop =================
 function resize(){
   const w = innerWidth, h = innerHeight;
-  renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix(); tourCam.aspect = w/h; tourCam.updateProjectionMatrix();
+  renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix();
 }
 addEventListener('resize', resize);
 let last = performance.now();
@@ -1050,8 +932,6 @@ function tick(now){
       if(done) orbitGoal = null;
     }
     applyOrbit(); renderer.render(scene, camera);
-  } else if(mode === 'tour'){
-    updateTour(); renderer.render(tourScene, tourCam);
   } else if(mode === 'walk'){
     updateWalk(dt); roomEl.textContent = whereAmI(walk.x, walk.z); renderer.render(scene, camera);
   }
@@ -1075,11 +955,11 @@ function skyBackground(){
 }
 skyBackground(); buildLights(); buildGrounds(); buildFloors();
 WALLS.forEach(buildWall);
-buildRoof(); buildFurniture(); buildPlan(); buildGallery();
+buildRoof(); buildFurniture(); buildPlan();
 scene.traverse(o=>{ if(o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.55; });
-window.HOUSE = {scene, world, roof, PANOS, RENDERS};
+window.HOUSE = {scene, world, roof};
 resize();
-const start = ({planta:'plan', maquete:'orbit', passeio:'walk', tour360:'tour', renders:'renders'})[location.hash.slice(1)] || 'orbit';
+const start = ({planta:'plan', maquete:'orbit', passeio:'walk'})[location.hash.slice(1)] || 'orbit';
 setMode(start);
 document.getElementById('loading').remove();
 requestAnimationFrame(tick);
