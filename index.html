@@ -94,16 +94,18 @@ const LOT = {w: 12, d: 41};
 const H = 3.0; // ceiling height (pé-direito)
 
 // Opening types: [sill, top]
-const OPS = {door:[0,2.1], open:[0,2.1], pivot:[0,2.4], slide:[0,2.4], win:[1.0,2.2], winH:[1.6,2.2], big:[0.3,2.6]};
+const OPS = {slide2:[0,2.2], door:[0,2.1], open:[0,2.1], pivot:[0,2.4], slide:[0,2.4], win:[1.0,2.2], winH:[1.6,2.2], big:[0.3,2.6]};
 const GLASS = new Set(['slide','win','winH','big']);
 
 // Walls: ax 'x' runs along x at z=c; ax 'z' runs along z at x=c. ops: [from, to, type, swingSign]
 // Interior doors are 0.90 m (0.80 m clear) for wheelchair access
 const WALLS = [
-  {ax:'x', c:5,    s:1.5,  e:10.5, t:.2,  ops:[[2.0,5.6,'big'],[6.3,7.5,'pivot',1],[8.3,10.0,'win']]},
+  {ax:'x', c:5,    s:1.5,  e:10.5, t:.2,  ops:[[2.0,5.6,'big'],[6.3,7.5,'pivot',1]]},
   {ax:'z', c:1.5,  s:5,    e:13.5, t:.2,  ops:[[6.2,8.6,'win'],[10.0,12.6,'win']]},
-  {ax:'z', c:6.0,  s:5,    e:9.4,  t:.15, ops:[[5.6,6.5,'door',-1]]},
-  {ax:'x', c:9.4,  s:1.5,  e:6.0,  t:.15, ops:[[4.9,5.8,'door',-1]]},
+  {ax:'z', c:6.0,  s:5,    e:9.4,  t:.15, ops:[[7.6,9.2,'slide2']]},
+  {ax:'x', c:9.4,  s:1.5,  e:6.0,  t:.15, ops:[]},
+  {ax:'x', c:7.4,  s:6.0,  e:10.5, t:.15, ops:[[6.05,6.95,'open'],[9.2,10.0,'door',-1]]},
+  {ax:'z', c:8.4,  s:5,    e:7.4,  t:.15, ops:[]},
   {ax:'z', c:1.5,  s:15.7, e:26.7, t:.2,  ops:[[16.4,18.8,'win'],[20.2,21.4,'winH'],[23.2,25.6,'win']]},
   {ax:'z', c:10.5, s:5,    e:26.7, t:.2,  ops:[[8.0,9.6,'win'],[14.4,15.3,'door',-1],[16.6,17.8,'winH'],[19.6,21.8,'win'],[23.3,24.7,'win'],[25.5,26.3,'winH']]},
   {ax:'z', c:10.5, s:26.7, e:30.4, t:.2,  ops:[]},
@@ -127,9 +129,11 @@ const WALLS = [
 const B = '#d9e5ec', Q = '#f6efe2', C = '#efe7d9';
 const ROOMS = [
   {n:'Sala de estar', s:'Estar', r:[1.5,5,6.0,9.4], f:'wood', c:'#f5ecdc'},
-  {n:'Sala de jantar', s:'Jantar', r:[1.5,9.4,6.0,13.5], f:'wood', c:'#f3eadb'},
-  {n:'Hall de entrada', s:'Hall', r:[6.0,5,10.5,6.8], f:'wood', c:'#eceae4'},
-  {n:'Cozinha', s:'Cozinha', r:[6.0,6.8,10.5,13.5], f:'wood', c:'#e6eef1'},
+  {n:'Sala de jantar', s:'Jantar', r:[1.5,9.4,7.0,13.5], f:'wood', c:'#f3eadb'},
+  {n:'Genkan (entrada)', s:'Genkan', r:[6.0,5,8.4,7.4], f:'stone', c:'#e4ded2'},
+  {n:'Despensa', s:'Despensa', r:[8.4,5,10.5,7.4], f:'wood', c:'#ece6da'},
+  {n:'Hall', s:'', r:[6.0,7.4,7.0,9.4], f:'wood', c:'#eceae4'},
+  {n:'Cozinha', s:'Cozinha', r:[7.0,7.4,10.5,13.5], f:'wood', c:'#e6eef1'},
   {n:'Jardim de inverno', s:'Jardim', r:[1.5,13.5,3.35,15.7], f:'pebble', c:'#d6e8c8', built:false},
   {n:'Lavabo', s:'Lavabo', r:[3.35,13.5,5.35,15.7], f:'wood', c:B},
   {n:'Circulação', s:'Circ.', r:[5.35,13.5,6.65,24.0], f:'wood', c:'#f1ede5'},
@@ -149,9 +153,11 @@ const area = r => (r.r[2]-r.r[0])*(r.r[3]-r.r[1]);
 // Walk-mode teleport points: [label, x, z, lookX, lookZ]
 const SPOTS = [
   ['Calçada (chegada)', 7.0, -1.6, 7.0, 8],
+  ['Genkan (entrada)', 6.9, 5.5, 6.5, 9.0],
   ['Sala de estar', 4.6, 8.5, 3.0, 5.5],
   ['Sala de jantar', 5.5, 12.8, 2.0, 10.0],
-  ['Cozinha', 6.4, 7.4, 10, 12.5],
+  ['Cozinha', 7.4, 8.0, 10, 12.5],
+  ['Despensa', 9.6, 7.1, 9.6, 5.0],
   ['Corredor', 6.0, 13.8, 6.0, 22],
   ['Lavanderia', 7.2, 14.9, 10, 14.5],
   ['Banheiro social', 7.1, 16.9, 10, 17.5],
@@ -166,10 +172,11 @@ const SPOTS = [
 
 // 360 tour: ray-traced equirectangular panoramas; links = neighbours reachable by hotspot
 const PANOS = {
-  rua:        {n:'Frente da casa', x:7.0, z:-1.5, links:['sala','cozinha']},
-  sala:       {n:'Sala de estar', x:3.6, z:8.4, links:['rua','jantar']},
+  rua:        {n:'Frente da casa', x:7.0, z:-1.5, links:['genkan']},
+  genkan:     {n:'Genkan (entrada)', x:7.0, z:6.0, links:['rua','sala','cozinha']},
+  sala:       {n:'Sala de estar', x:3.6, z:8.4, links:['genkan','cozinha']},
   jantar:     {n:'Sala de jantar', x:5.3, z:11.2, links:['sala','cozinha','corredor']},
-  cozinha:    {n:'Cozinha', x:8.0, z:12.3, links:['jantar','corredor','rua']},
+  cozinha:    {n:'Cozinha', x:8.0, z:12.3, links:['jantar','corredor','genkan','sala']},
   corredor:   {n:'Corredor dos quartos', x:6.0, z:15.5, links:['jantar','lavanderia','banho','quarto2','quarto3','closet','escritorio']},
   lavanderia: {n:'Lavanderia', x:8.4, z:15.0, links:['corredor']},
   banho:      {n:'Banheiro social', x:8.0, z:17.3, links:['corredor']},
@@ -186,7 +193,7 @@ const PANO_YAW = -Math.PI/2;  // aligns the panorama image with world axes
 
 // Photorealistic renders shown in the gallery tab
 const RENDERS = [
-  ['renders/fachada.jpg', 'Fachada'], ['renders/aerea.jpg', 'Vista aérea'], ['renders/fundos.jpg', 'Quintal e horta'],
+  ['renders/fachada.jpg', 'Fachada'], ['renders/genkan.jpg', 'Genkan (entrada)'], ['renders/aerea.jpg', 'Vista aérea'], ['renders/fundos.jpg', 'Quintal e horta'],
   ['renders/sala.jpg', 'Sala de estar'], ['renders/jantar.jpg', 'Jantar integrado à cozinha'], ['renders/cozinha.jpg', 'Cozinha'], ['renders/gourmet.jpg', 'Churrasqueira com forno de pizza e pia'],
   ['renders/banho.jpg', 'Banheiro acessível'], ['renders/master.jpg', 'Suíte master'], ['renders/closet.jpg', 'Closet da suíte'], ['renders/escritorio.jpg', 'Escritório'],
 ];
@@ -456,9 +463,9 @@ function buildRoof(){
   boxR(8.85, 26.85, 9.0, 30.55, H-0.25, H+0.3, MAT.wall, g);
   boxR(9.95, 28.35, 10.45, 28.85, H, H+1.6, brickMat(0.5, 1.6), g);          // shared chimney
   boxR(6.0, 3.5, 8.6, 4.85, H-0.15, H+0.05, MAT.slab);                        // entrance canopy
-  for(let x=7.55; x<8.25; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);   // wood slats
+  for(let x=7.55; x<10.45; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);  // wood slats
   for(let x=6.05; x<6.25; x+=0.1) boxR(x, 4.78, x+0.045, 4.84, 0, H-0.15, MAT.ripado);
-  [[3.75,7.2],[3.75,11.3],[8.2,5.9],[8.2,8.6],[8.2,12.0],[6,15],[6,18.5],[6,21.5],[4.35,14.6],[8.5,14.7],[8.5,17.3],
+  [[3.75,7.2],[3.75,11.3],[7.2,6.2],[9.45,6.2],[6.5,8.4],[8.7,8.6],[8.7,12.0],[6,15],[6,18.5],[6,21.5],[4.35,14.6],[8.5,14.7],[8.5,17.3],
    [8.5,20.7],[3.4,17.7],[2.75,21.0],[4.3,21.0],[3.4,24.5],[8.5,23.8],[8.5,25.9],[6,25.3],[9.45,28.5]].forEach(([x,z])=>{
     mesh(new THREE.CylinderGeometry(0.14,0.14,0.02,20), MAT.lamp, x, H-0.01, z, {group:roof, cast:false});
   });
@@ -539,7 +546,7 @@ function shower(x0, z0, x1, z1, glass){
 }
 
 function buildFurniture(){
-  // --- Living room (closed, door to the hall and to the dining room) ---
+  // --- Living room (closed; single double sliding door to the kitchen hall) ---
   floor(2.0, 5.9, 5.0, 8.3, 0.03, MAT.rug);
   boxR(2.0, 5.6, 5.0, 6.5, 0.15, 0.45, MAT.fabric, {solid:true, plan:'sofa'});
   boxR(2.0, 5.6, 5.0, 5.85, 0.45, 0.88, MAT.fabric);
@@ -564,10 +571,10 @@ function buildFurniture(){
   shrub(1.8, 13.9, 0.28); shrub(3.0, 15.3, 0.3); shrub(1.8, 15.3, 0.25);
   for(let i=0;i<10;i++) mesh(new THREE.SphereGeometry(rnd(0.06,0.12), 8, 6), MAT.stoneTop, rnd(1.6,3.2), 0.03, rnd(13.6,15.6), {cast:false});
 
-  // --- Kitchen: sink, cooktop with hood, built-in oven tower and fridge ---
-  boxR(9.9, 6.9, 10.48, 11.55, 0, 0.86, MAT.woodLight, {solid:true, plan:'counter'});
-  boxR(9.85, 6.9, 10.48, 11.55, 0.86, 0.9, MAT.counter);
-  boxR(10.15, 6.9, 10.48, 7.9, 1.6, 2.4, MAT.woodLight);
+  // --- Kitchen (compact): sink, cooktop with hood, oven tower, fridge and small island ---
+  boxR(9.9, 7.55, 10.48, 11.3, 0, 0.86, MAT.woodLight, {solid:true, plan:'counter'});
+  boxR(9.85, 7.55, 10.48, 11.3, 0.86, 0.9, MAT.counter);
+  boxR(10.15, 7.55, 10.48, 7.95, 1.6, 2.4, MAT.woodLight);
   boxR(10.0, 8.4, 10.38, 9.1, 0.86, 0.905, MAT.steel, {cast:false});                       // sink
   mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.35, 8), MAT.steel, 10.38, 1.07, 8.75);
   boxR(10.12, 8.73, 10.38, 8.77, 1.22, 1.25, MAT.steel, {cast:false});                     // faucet spout
@@ -575,18 +582,30 @@ function buildFurniture(){
   [[10.07,10.35],[10.29,10.35],[10.07,10.8],[10.29,10.8]].forEach(([x,z])=>mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.006, 20), MAT.trim, x, 0.915, z, {cast:false}));
   boxR(9.98, 10.22, 10.48, 10.93, 1.65, 1.75, MAT.steel);                                  // hood
   boxR(10.2, 10.42, 10.48, 10.73, 1.75, H, MAT.steel);
-  boxR(9.85, 11.6, 10.48, 12.62, 0, 2.4, MAT.woodLight, {solid:true, plan:'counter'});      // oven tower
-  boxR(9.83, 11.7, 9.86, 12.52, 0.75, 1.35, MAT.black, {cast:false});                      // electric oven
-  boxR(9.83, 11.75, 9.86, 12.47, 1.48, 1.82, MAT.black, {cast:false});                     // microwave
-  boxR(9.82, 11.72, 9.84, 12.5, 1.3, 1.32, MAT.steel, {cast:false});
-  boxR(9.75, 12.7, 10.48, 13.42, 0, 1.9, MAT.steel, {solid:true, plan:'counter'});         // fridge
-  boxR(9.72, 12.75, 9.75, 12.79, 0.9, 1.7, MAT.trim, {cast:false});
-  boxR(7.3, 8.8, 9.0, 11.0, 0, 0.88, MAT.white, {solid:true, plan:'counter'});
-  boxR(7.2, 8.7, 9.1, 11.1, 0.88, 0.92, MAT.counter);
-  [9.3, 9.9, 10.5].forEach(z=>{ mesh(new THREE.CylinderGeometry(0.17,0.17,0.05,16), MAT.wood, 6.95, 0.66, z); mesh(new THREE.CylinderGeometry(0.02,0.02,0.64,6), MAT.black, 6.95, 0.32, z); });
-  pendant(8.15, 9.4, 1.95); pendant(8.15, 10.4, 1.95);
-  plantPot(10.1, 6.2, 0.9);
-  planLabels.push([10.17, 8.75, 'Pia'], [10.17, 10.57, 'Cooktop'], [10.17, 12.1, 'Torre quente'], [10.12, 13.06, 'Geladeira'], [8.15, 9.9, 'Ilha']);
+  boxR(9.85, 11.35, 10.48, 12.37, 0, 2.4, MAT.woodLight, {solid:true, plan:'counter'});    // oven tower
+  boxR(9.83, 11.45, 9.86, 12.27, 0.75, 1.35, MAT.black, {cast:false});                     // electric oven
+  boxR(9.83, 11.5, 9.86, 12.22, 1.48, 1.82, MAT.black, {cast:false});                      // microwave
+  boxR(9.82, 11.47, 9.84, 12.25, 1.3, 1.32, MAT.steel, {cast:false});
+  boxR(9.75, 12.45, 10.48, 13.17, 0, 1.9, MAT.steel, {solid:true, plan:'counter'});        // fridge
+  boxR(9.72, 12.5, 9.75, 12.54, 0.9, 1.7, MAT.trim, {cast:false});
+  boxR(7.8, 9.4, 9.0, 10.9, 0, 0.88, MAT.white, {solid:true, plan:'counter'});             // island
+  boxR(7.7, 9.3, 9.1, 11.0, 0.88, 0.92, MAT.counter);
+  [9.7, 10.4].forEach(z=>{ mesh(new THREE.CylinderGeometry(0.17,0.17,0.05,16), MAT.wood, 7.45, 0.66, z); mesh(new THREE.CylinderGeometry(0.02,0.02,0.64,6), MAT.black, 7.45, 0.32, z); });
+  pendant(8.4, 9.8, 1.95); pendant(8.4, 10.5, 1.95);
+  planLabels.push([10.17, 8.75, 'Pia'], [10.17, 10.57, 'Cooktop'], [10.17, 11.86, 'T. quente'], [10.12, 12.81, 'Geladeira'], [8.4, 10.15, 'Ilha']);
+
+  // --- Pantry (despensa) ---
+  boxR(8.5, 5.08, 10.42, 5.45, 0, 2.3, MAT.woodLight, {solid:true, plan:'furn'});
+  boxR(10.05, 5.45, 10.42, 7.25, 0, 2.3, MAT.woodLight, {solid:true, plan:'furn'});
+  for(let y=0.45; y<2.2; y+=0.42) boxR(8.5, 5.44, 10.05, 5.47, y, y+0.02, MAT.wood, {cast:false});
+  planLabels.push([9.3, 5.6, 'Prateleiras']);
+
+  // --- Genkan: shoe cabinet with mirror, bench and plant ---
+  boxR(7.95, 5.6, 8.33, 7.3, 0, 1.0, MAT.woodLight, {solid:true, plan:'furn'});
+  boxR(8.3, 5.8, 8.32, 7.1, 1.2, 2.1, MAT.mirror, {cast:false});
+  boxR(7.05, 7.0, 7.85, 7.33, 0.42, 0.47, MAT.wood, {plan:'furn'});
+  boxR(7.05, 6.98, 7.85, 7.0, 0, 0.42, MAT.wood);
+  planLabels.push([8.14, 6.45, 'Sapateira']);
 
   // --- Lavabo (accessible: 1.50 m turning circle) ---
   toilet(4.0, 15.42, Math.PI);
@@ -876,6 +895,11 @@ function buildPlan(){
       s += R(rr, 'fill="#fff" stroke="#22272b" stroke-width=".8"');
       const [x0,z0,x1,z1] = w.ax === 'x' ? [a, w.c, b, w.c] : [w.c, a, w.c, b];
       s += `<line x1="${X(x0)}" y1="${Y(z0)}" x2="${X(x1)}" y2="${Y(z1)}" stroke="#3d8cc0" stroke-width="1.6"/>`;
+    } else if(type === 'slide2'){
+      // Double sliding (pocket) door: two leaves meeting at the middle
+      const mid = (a+b)/2, o = t/4;
+      const leaf = (p, q, off) => w.ax === 'x' ? [p, w.c+off-0.02, q, w.c+off+0.02] : [w.c+off-0.02, p, w.c+off+0.02, q];
+      s += R(leaf(a, mid, o), 'fill="#8a6a4a"') + R(leaf(mid, b, -o), 'fill="#8a6a4a"');
     } else if(type === 'door' || type === 'pivot'){
       const r = b - a, pts = [];
       for(let i=0;i<=12;i++){
@@ -887,7 +911,7 @@ function buildPlan(){
     }
   });
   // Labels
-  const POS = {'Sala de estar':[3.0,8.4], 'Sala de jantar':[3.6,13.0], 'Cozinha':[8.2,12.3], 'Hall de entrada':[8.9,5.6], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[8.5,24.2], 'Churrasqueira / forno / pia':[9.75,30.0], 'Closet':[8.0,25.5], 'Banho suíte':[3.6,21.6], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
+  const POS = {'Sala de estar':[3.0,8.4], 'Sala de jantar':[3.6,13.0], 'Cozinha':[8.8,12.4], 'Genkan (entrada)':[7.2,6.9], 'Despensa':[9.45,6.4], 'Lavanderia':[8.6,15.0], 'Banheiro social':[7.6,16.6], 'Quarto 2':[8.6,19.9], 'Quarto 3':[3.4,18.3], 'Suíte master':[2.6,26.0], 'Escritório':[8.5,24.2], 'Churrasqueira / forno / pia':[9.75,30.0], 'Closet':[8.0,25.5], 'Banho suíte':[3.6,21.6], 'Lavabo':[4.4,14.3], 'Jardim de inverno':[2.4,14.3]};
   ROOMS.forEach(r=>{
     if(!r.s) return;
     const cx = (r.r[0]+r.r[2])/2, cz = (r.r[1]+r.r[3])/2, small = (r.r[2]-r.r[0]) < 2.6;
@@ -931,7 +955,7 @@ function buildPlan(){
     <h3>Acessibilidade (base NBR 9050)</h3>
     <p>Portas internas de 0,90 m (vão livre ≥ 0,80 m), corredor de 1,30 m, banheiros com giro de 1,50 m para cadeira de rodas (círculos tracejados), box sem degrau, espaço para barras de apoio e lavatório sem gabinete frontal. Entrada principal com porta pivotante de 1,20 m, sem degraus.</p>
     <h3>Observações</h3>
-    <p>Estudo preliminar. Recuos, taxa de ocupação e permeabilidade variam por município — validar com a lei de zoneamento local. Planta desenhada como vista da rua (frente embaixo). Sala de estar fechada (portas para o hall e para o jantar), isolada dos cheiros da cozinha; jantar integrado à cozinha. Lavabo na transição entre a sala e os quartos; lavanderia abre para o corredor e para o varal no recuo lateral, que leva à churrasqueira. Banheiro social compartilhado pelos quartos 2 e 3. Churrasqueira compacta coberta (sem área de mesas): pia, churrasqueira e forno de pizza aquecido pela mesma lenha, com chaminé única. Projeto legal, estrutural e de instalações precisam de arquiteto/engenheiro com RRT/ART.</p>`;
+    <p>Estudo preliminar. Recuos, taxa de ocupação e permeabilidade variam por município — validar com a lei de zoneamento local. Planta desenhada como vista da rua (frente embaixo). Genkan na entrada (piso de pedra, sapateira e banco; sem degrau para manter a acessibilidade). Sala de estar fechada, com uma única porta dupla de correr para o hall da cozinha. Cozinha compacta com despensa; jantar integrado à cozinha. Lavabo na transição entre a sala e os quartos; lavanderia abre para o corredor e para o varal no recuo lateral, que leva à churrasqueira. Banheiro social compartilhado pelos quartos 2 e 3. Churrasqueira compacta coberta (sem área de mesas): pia, churrasqueira e forno de pizza aquecido pela mesma lenha, com chaminé única. Projeto legal, estrutural e de instalações precisam de arquiteto/engenheiro com RRT/ART.</p>`;
 
   let z = 1;
   const svgEl = () => document.getElementById('planSvg');

@@ -15,7 +15,8 @@ Preliminary design of a single-story house on a 12 × 41 m lot, viewable in any 
 Deep links: `#planta`, `#maquete`, `#passeio`, `#tour360`, `#renders`.
 
 ## Program
-- Closed living room (doors to the hall and dining room, isolated from kitchen smells); dining room integrated with the kitchen (island); entrance hall.
+- Genkan entrance (stone floor, shoe cabinet with mirror, bench; step-free for accessibility).
+- Closed living room with a single double sliding door to the kitchen hall (isolated from kitchen smells); dining room integrated with a compact kitchen (oven tower, island) and a pantry.
 - Powder room and winter garden between the living area and the bedroom wing.
 - 3 bedrooms (1 master suite) + home office. Bedroom corridor (1.30 m) gives access to the laundry (side door to the clothesline), shared bathroom, bedrooms 2 and 3, master suite and office.
 - Master suite (≈ 37 m²): bedroom, 10 m² accessible bathroom and walk-in closet with island, reached through a private hall; compact home office (≈ 9 m²).
